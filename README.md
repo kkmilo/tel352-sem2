@@ -1,4 +1,4 @@
-##Proyecto 'Giorgio IArmani' TEL352
+## Proyecto 'Giorgio IArmani' TEL352
 
 **Integrantes:**
 
