@@ -81,7 +81,7 @@ def analizar_imagen():
         height_cm = int(height_var.get())
 
         # Cambiar a "captured_image.jpg" si se quiere usar la cámara
-        result = run_inference("felipe1.jpg", height_cm)
+        result = run_inference("captured_image.jpg", height_cm)
 
         # Hide 'analyzing' label once done
         analisis.place_forget()
@@ -134,7 +134,7 @@ app.geometry("1600x900")
 app.bind('<Escape>', lambda e: app.quit())
 
 # === Background ===
-img_pil = Image.open("./BG.jpg")
+img_pil = Image.open("./background.jpg")
 image = ImageTk.PhotoImage(img_pil)
 fondo = Label(app, image=image)
 fondo.place(x=0, y=0, relwidth=1, relheight=1)
