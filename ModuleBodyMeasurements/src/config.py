@@ -27,6 +27,10 @@ if not osp.exists(model_dir):
 SMPL_MODEL_PATH = osp.join(model_dir, 'neutral_smpl_with_cocoplus_reg.pkl')
 SMPL_FACE_PATH = osp.join(curr_path, '../src/tf_smpl', 'smpl_faces.npy')
 
+#print("Looking for SMPL model at:", SMPL_MODEL_PATH)
+#print("Exists?", osp.exists(SMPL_MODEL_PATH))
+
+
 # Default pred-trained model path for the demo.
 PRETRAINED_MODEL = osp.join(model_dir, 'model.ckpt-667589')
 

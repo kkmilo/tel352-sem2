@@ -18,7 +18,8 @@ python -m demo --img_path data/random.jpg --json_path data/random_keypoints.json
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import extract_measurements
+from . import extract_measurements
+import os
 import sys
 import cv2
 from absl import flags
@@ -28,10 +29,12 @@ import skimage.io as io
 import tensorflow as tf
 
 #from src.util import renderer as vis_util
-from src.util import image as img_util
-from src.util import openpose as op_util
-import src.config
-from src.RunModel import RunModel
+from .src.util import image as img_util
+from .src.util import openpose as op_util
+from .src import config
+from .src.RunModel import RunModel
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 flags.DEFINE_string('img_path', 'data/k3.png', 'Image to run')
 flags.DEFINE_string(
@@ -144,8 +147,8 @@ def main(img_path, height, json_path=None):
 #    obj_mesh_name = 'test.obj'
 
     
-    extract_measurements.extract_measurements(height,verts[0])
-
+    measure_dict = extract_measurements.extract_measurements(height,verts[0])
+    return measure_dict
     
     
 #    with open(obj_mesh_name, 'w') as fp:

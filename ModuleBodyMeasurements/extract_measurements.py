@@ -3,9 +3,14 @@
 import numpy as np
 import sys
 import os
-import utils
+from . import utils
 
-DATA_DIR = "data"
+# 🔹 Base directory of this module
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+
 # loading data: file_list, vertex, mean, std
 #def obj2npy(label="male"):
 #    
@@ -40,8 +45,7 @@ DATA_DIR = "data"
 #  return vertex
 
 
-        
- 
+
 # read control  points(CP) from text file
 def convert_cp():
     
@@ -104,35 +108,30 @@ def calc_measure(cp, vertex,height):#, facet):
 
 ##added code: extract body measurements given a .obj model in data.
 def extract_measurements(height, vertices):
-  genders = ["male"]#, "male"]
-  measure = []
-  for gender in genders:
-    # generate and load control point from txt to npy file
-    cp = convert_cp()
+    genders = ["male"]
+    measure = []
 
-#    vertex = obj2npy(gender)[0]
-    #calculte + convert
+    cp = convert_cp()
     measure = calc_measure(cp, vertices, height)
 
+    # give body measurements one by one
+    for i in range(utils.M_NUM):
+        print("%s: %f" % (utils.M_STR[i], measure[i]))
 
-    #give body measurements one by one
-    for i in range(0, utils.M_NUM):
-      print("%s: %f" % (utils.M_STR[i], measure[i]))
-    
-    
-    
-    face_path = './src/tf_smpl/smpl_faces.npy'
+    # Save 3D mesh as OBJ
+    face_path = os.path.join(BASE_DIR, 'src', 'tf_smpl', 'smpl_faces.npy')
     faces = np.load(face_path)
-    obj_mesh_name = 'test.obj'
+
+    obj_mesh_name = os.path.join(BASE_DIR, 'test.obj')
     with open(obj_mesh_name, 'w') as fp:
         for v in vertices:
-            fp.write( 'v %f %f %f\n' % ( v[0], v[1], v[2]) )
-        for f in faces: # Faces are 1-based, not 0-based in obj files
-            fp.write( 'f %d %d %d\n' %  (f[0] + 1, f[1] + 1, f[2] + 1) )
+            fp.write('v %f %f %f\n' % (v[0], v[1], v[2]))
+        for f in faces:
+            fp.write('f %d %d %d\n' % (f[0] + 1, f[1] + 1, f[2] + 1))
 
-        
     print("Model Saved...")
-
+    # RETURN results as dict
+    return {utils.M_STR[i]: float(measure[i]) for i in range(utils.M_NUM)}
 
 #if __name__ == "__main__":
 #  extract_measurements()

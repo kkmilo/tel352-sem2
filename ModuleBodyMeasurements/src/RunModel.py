@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
 import tensorflow as tf
 import numpy as np
 from os.path import exists
@@ -20,7 +21,11 @@ class RunModel(object):
         """
 #        self.config = config
 
-        self.load_path = 'models/model.ckpt-667589'#config.load_path
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.load_path = os.path.join(BASE_DIR, '..', 'models', 'model.ckpt-667589')
+        self.smpl_model_path = os.path.join(BASE_DIR, '..', 'models', 'neutral_smpl_with_cocoplus_reg.pkl')
+
+        #self.load_path = 'models/model.ckpt-667589'#config.load_path
 
         
         
@@ -40,7 +45,7 @@ class RunModel(object):
  
 
         self.data_format = 'NHMC'
-        self.smpl_model_path = 'models/neutral_smpl_with_cocoplus_reg.pkl'#config.smpl_model_path
+        #self.smpl_model_path = 'models/neutral_smpl_with_cocoplus_reg.pkl'#config.smpl_model_path
         
         input_size = (self.batch_size, self.img_size, self.img_size, 3)
         self.images_pl = tf.placeholder(tf.float32, shape=input_size)
