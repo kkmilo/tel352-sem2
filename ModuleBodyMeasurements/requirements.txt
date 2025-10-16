@@ -1,0 +1,23 @@
+# Core numerical and image packages
+numpy==1.16.1
+scipy==1.2.1
+pillow==5.4.1
+scikit-image==0.14.2
+opencv-python==4.2.0.34
+cython==0.29.7
+openpyxl==2.6.2
+
+# TensorFlow 1.x
+tensorflow==1.13.1
+
+# Debugging and utility
+ipdb==0.13.9
+absl-py==0.7.1
+six==1.15.0
+
+# Optimization / 3D / visualization
+cvxpy==1.1.15
+ecos==2.0.7.post1
+vtk==8.1.2
+traits==5.1.1
+opendr==0.78

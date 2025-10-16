@@ -1,0 +1,12 @@
+#Asegurarse de instalar lo que se encuentra bajo requirements.txt antes de ejecutar el modulo
+pip install -r requirements.txt 
+#Run entire measuring pipeline (try either python or python3)
+python3 inference.py -i sample_data/input/felipe1.jpeg -ht 164
+
+
+
+
+
+
+
+
