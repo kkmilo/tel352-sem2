@@ -1,0 +1,32 @@
+# Ignorar entorno virtual
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales y de sistema
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de usuario
+.env
+*.env
+
+# Archivos de logs
+*.log
+
+# Archivos de datos generados
+/data/capturas/
+/data/resultados/
+
+# Modelos grandes (opcional, si no quieres subirlos)
+# /modelos/*.pkl
+# /modelos/*.json
+
+# Archivos de VSCode
+.vscode/

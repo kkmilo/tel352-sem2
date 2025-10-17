@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251016_204703",
+  "fecha": "2025-10-16 20:47:03",
+  "imagen_original": "capturas_estatura/captura_20251016_204703.jpg",
+  "imagen_anotada": "resultados_predicciones/prediccion_20251016_204703.jpg",
+  "altura_predicha_cm": 166.56,
+  "confianza": 0.9704,
+  "visibilidad_landmarks": 0.9507,
+  "caracteristicas": {
+    "body_height_px": 356.62,
+    "leg_length_px": 363.75,
+    "torso_length_px": 177.59,
+    "shoulder_width_px": 131.59,
+    "hip_width_px": 93.28
+  },
+  "modelo_usado": "modelo_altura_random_forest_20251015_215630",
+  "mae_modelo": 5.15
+}

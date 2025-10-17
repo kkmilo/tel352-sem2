@@ -1,0 +1,44 @@
+{
+  "timestamp": "20251015_215630",
+  "model_type": "RandomForestRegressor",
+  "model_name": "modelo_altura_random_forest_20251015_215630",
+  "dataset": "ANSUR II (Datos Reales)",
+  "n_estimators": 100,
+  "max_depth": 20,
+  "features": 15,
+  "train_metrics": {
+    "mae": 2.537638984125901,
+    "r2": 0.866912018066374
+  },
+  "test_metrics": {
+    "mae": 5.1546743985326176,
+    "r2": 0.4432444511275492,
+    "error_mean": -0.013815742006865257,
+    "error_std": 6.455087446963462,
+    "pct_under_2cm": 23.125,
+    "pct_under_5cm": 56.00000000000001,
+    "pct_under_10cm": 88.125
+  },
+  "top_features": [
+    {
+      "feature": "leg_to_torso_ratio",
+      "importance": 0.3965633075555653
+    },
+    {
+      "feature": "height_to_width_ratio",
+      "importance": 0.17171086795701615
+    },
+    {
+      "feature": "image_width",
+      "importance": 0.04744258687323741
+    },
+    {
+      "feature": "confidence_avg",
+      "importance": 0.04609352742129478
+    },
+    {
+      "feature": "nose_visibility",
+      "importance": 0.04505156977916634
+    }
+  ]
+}
