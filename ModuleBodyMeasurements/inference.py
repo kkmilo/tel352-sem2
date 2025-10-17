@@ -50,11 +50,11 @@ class DeepLabModel(object):
 		"""Runs inference on a single image.
 
 		Args:
-		  image: A PIL.Image object, raw input image.
+			image: A PIL.Image object, raw input image.
 
 		Returns:
-		  resized_image: RGB image resized from original input image.
-		  seg_map: Segmentation map of `resized_image`.
+			resized_image: RGB image resized from original input image.
+			seg_map: Segmentation map of `resized_image`.
 		"""
 		width, height = image.size
 		resize_ratio = 1.0 * self.INPUT_SIZE / max(width, height)
@@ -77,7 +77,7 @@ def create_pascal_label_colormap():
 
 	for shift in reversed(range(8)):
 		for channel in range(3):
-		  colormap[:, channel] |= ((ind >> channel) & 1) << shift
+			colormap[:, channel] |= ((ind >> channel) & 1) << shift
 		ind >>= 3
 
 	return colormap
@@ -90,12 +90,12 @@ def label_to_color_image(label):
 
 	Returns:
 	result: A 2D array with floating type. The element of the array
-	  is the color indexed by the corresponding element in the input label
-	  to the PASCAL color map.
+	is the color indexed by the corresponding element in the input label
+	to the PASCAL color map.
 
 	Raises:
 	ValueError: If label is not of rank 2 or its value is larger than color
-	  map maximum entry.
+	map maximum entry.
 	"""
 	if label.ndim != 2:
 		raise ValueError('Expect 2-D input label')
@@ -152,8 +152,7 @@ if not os.path.exists(model_dir):
 download_path = os.path.join(model_dir, _TARBALL_NAME)
 if not os.path.exists(download_path):
   print('downloading model to %s, this might take a while...' % download_path)
-  urllib.request.urlretrieve(_DOWNLOAD_URL_PREFIX + _MODEL_URLS[MODEL_NAME], 
-			     download_path)
+  urllib.request.urlretrieve(_DOWNLOAD_URL_PREFIX + _MODEL_URLS[MODEL_NAME], download_path)
   print('download completed! loading DeepLab model...')
 
 MODEL = DeepLabModel(download_path)
@@ -184,13 +183,13 @@ img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 res = cv2.bitwise_and(img,img,mask = mask)
 bg_removed = res + (255 - cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR))
 ## Descomentar esto para ver las imagenes y el procesamiento de estas
-#cv2.namedWindow("original image", cv2.WINDOW_NORMAL)
-#cv2.imshow("original image",img)
-#cv2.namedWindow("mask", cv2.WINDOW_NORMAL)
-#cv2.imshow("mask",res)
-#cv2.namedWindow("input image", cv2.WINDOW_NORMAL)
-#cv2.imshow('input image',bg_removed)
-#cv2.waitKey(0)
+##cv2.namedWindow("original image", cv2.WINDOW_NORMAL)
+##cv2.imshow("original image",img)
+##cv2.namedWindow("mask", cv2.WINDOW_NORMAL)
+##cv2.imshow("mask",res)
+##cv2.namedWindow("input image", cv2.WINDOW_NORMAL)
+##cv2.imshow('input image',bg_removed)
+##cv2.waitKey(0)
 
 #print("after processing = ",type(np.asarray(255*mask_sel)))
 #

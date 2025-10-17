@@ -76,7 +76,7 @@ def label_to_color_image(label):
 def run_inference(image_path: str, height: int):
     global MODEL
 
-    MODEL_NAME = 'xception_coco_voctrainval'
+    MODEL_NAME = 'mobilenetv2_coco_voctrainval'
     _DOWNLOAD_URL_PREFIX = 'http://download.tensorflow.org/models/'
     _MODEL_URLS = {
         'mobilenetv2_coco_voctrainaug': 'deeplabv3_mnv2_pascal_train_aug_2018_01_29.tar.gz',
