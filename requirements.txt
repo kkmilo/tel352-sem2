@@ -1,0 +1,26 @@
+# Requisitos consolidados para ColorInsight, sistema_altura y ModuleBodyMeasurements (ruta TF2)
+
+# Núcleo y utilidades
+numpy>=1.24.0
+scipy>=1.10.0
+joblib>=1.2.0
+requests>=2.31.0
+validators>=0.20.0
+
+# Imagen y visión
+opencv-python>=4.8.0
+Pillow>=10.0.0
+scikit-image>=0.21.0
+matplotlib>=3.7.0
+colour-science>=0.4.0
+mediapipe>=0.9.0
+scikit-learn>=1.2.2
+
+# Deep Learning (ColorInsight)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# TensorFlow 2.x para ModuleBodyMeasurements (usando tf.compat.v1)
+# Si aparece un error con sesiones v1, añade al inicio del script: tf.compat.v1.disable_eager_execution()
+tensorflow>=2.13,<2.18
+absl-py>=1.4.0

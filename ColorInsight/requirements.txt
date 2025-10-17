@@ -1,0 +1,25 @@
+# Web Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Computer Vision & Image Processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+scikit-image>=0.21.0
+matplotlib>=3.7.0
+colour-science>=0.4.0
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+
+# HTTP Client
+requests>=2.31.0
+
+# Utilities
+numpy>=1.24.0
+validators>=0.20.0
+matplotlib>=3.7.0
+
+# CUDA support (optional - uncomment if using GPU)
+# Install with: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
