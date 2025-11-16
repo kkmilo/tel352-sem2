@@ -1,0 +1,39 @@
+{
+  "timestamp": "20251114_230532",
+  "model_type": "DNNRegressor",
+  "model_name": "modelo_altura_dnn_20251114_230532",
+  "dataset": "ANSUR II (Datos Reales / Derivado)",
+  "features": 15,
+  "feature_names": [
+    "body_height_px",
+    "leg_length_px",
+    "torso_length_px",
+    "shoulder_width_px",
+    "hip_width_px",
+    "leg_to_torso_ratio",
+    "height_to_width_ratio",
+    "image_width",
+    "image_height",
+    "confidence_avg",
+    "nose_visibility",
+    "left_shoulder_visibility",
+    "right_shoulder_visibility",
+    "left_hip_visibility",
+    "right_hip_visibility"
+  ],
+  "hidden_layers": [
+    256,
+    128,
+    64
+  ],
+  "train_params": {
+    "epochs": 150,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "quantized": false
+  },
+  "test_metrics": {
+    "mae": 5.58467986936304,
+    "r2": 0.4342616151673341
+  }
+}

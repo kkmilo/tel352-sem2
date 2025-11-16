@@ -31,20 +31,24 @@ sistema_altura/
 ├── app/                          # Aplicación principal
 │   └── captura_y_prediccion.py   # Programa principal
 ├── modelos/                      # Modelos entrenados
-│   ├── modelo_*.pkl              # Modelo Random Forest
+│   ├── modelo_altura_*.tflite    # Modelo TFLite para inferencia
 │   ├── scaler_*.pkl              # Normalizador
 │   ├── modelo_metadata_*.json    # Metadata del modelo
 │   └── calibracion_*.json        # Calibración aplicada
-├── scripts/                      # Scripts de configuración
+├── scripts/                      # Scripts de configuración y utilidades
 │   ├── setup_entorno.sh          # Crear entorno virtual
 │   ├── instalar_dependencias.sh  # Instalar paquetes
-│   ├── ejecutar_sistema.sh       # Ejecutar el sistema
-│   └── inicio_rapido.sh          # Instalación automática
+│   ├── ejecutar_sistema.sh       # Ejecutar el sistema (GUI)
+│   ├── inicio_rapido.sh          # Instalación automática
+│   ├── limpiar_proyecto.sh       # Limpieza de artefactos antiguos
+│   ├── predicciones_headless.py  # Inferencia sin GUI (por lotes)
+│   ├── analizar_offsets.py       # Análisis de calibraciones/resultados
+│   ├── entrenar_dnn_altura.py    # (Opcional) Entrenamiento DNN
+│   └── generar_dataset_sintetico.py # (Opcional) Datos sintéticos
 ├── config/                       # Archivos de configuración
 │   └── haarcascade_*.xml         # Detector de rostros
-├── data/                         # Datos del usuario
-│   ├── capturas/                 # Fotos capturadas
-│   └── resultados/               # Resultados JSON
+├── capturas_estatura/            # Fotos capturadas (recientes)
+├── resultados_predicciones/      # Resultados JSON/imagenes
 ├── docs/                         # Documentación
 │   ├── README.md                 # Documentación completa
 │   └── INSTRUCCIONES_FINALES.txt # Guía de uso
@@ -54,16 +58,59 @@ sistema_altura/
 
 ## 📊 Características
 
-- **Precisión:** MAE 5.15 cm (base), 0.41 cm (con calibración)
-- **Modelo:** Random Forest con 4,000 muestras
-- **Detección:** MediaPipe Pose Detection
-- **Interfaz:** GUI con Tkinter
+- Precisión: MAE ~5.6 cm (modelo DNN TFLite en dataset de prueba sintético)
+- Modelo: DNN convertido a TensorFlow Lite con 15 características (features de pose)
+- Detección: MediaPipe Pose
+- Interfaz: GUI con Tkinter, cámara se enciende automáticamente
+- Auto-captura: si la calidad de detección es “EXCELENTE”, se dispara una captura con cuenta regresiva de 3 segundos
+- Calibración: ajuste por offset aditivo contra tu estatura real; se persiste en `modelos/calibracion_*.json`
+- Resultados: se guardan altura sin calibración (`altura_sin_calibracion_cm`) y calibrada (`altura_predicha_cm`)
+- Headless: script para ejecutar predicciones sin GUI y otro para analizar offsets y estadísticas
+
+## 🧠 Modelos incluidos y datos
+
+- Modelo actual (recomendado):
+  - `modelos/modelo_altura_dnn_*.tflite`
+  - `modelos/scaler_*.pkl`
+  - `modelos/modelo_metadata_*.json`
+  - `modelos/calibracion_*.json` (opcional)
+
+- Datos de entrenamiento:
+  - Dataset de referencia: ANSUR II (no incluido por tamaño). Se proporciona un dataset sintético y un modelo TFLite ya convertido para ejecución inmediata.
+
+## ⚙️ TensorFlow Lite (TFLite)
+
+La aplicación usa exclusivamente modelos `*.tflite` para la inferencia.
+
+- En Python < 3.12: se instala `tflite-runtime` (ligero, recomendado para inferencia)
+- En Python >= 3.12: se usa `tensorflow` y su `tf.lite.Interpreter` (no hay wheel oficial de `tflite-runtime` para 3.12)
+
+Entrenamiento/Conversión (opcional):
+
+- Script: `scripts/entrenar_dnn_altura.py`
+- Entrada: CSV con las 15 features + columna `height_cm`
+- Salida: `.tflite`, `scaler_*.pkl`, `modelo_metadata_*.json` y opcionalmente `calibracion_*.json`
 
 ## 🔧 Requisitos
 
-- Python 3.8+
+- Python 3.8+ (3.12 soportado con fallback a TensorFlow)
 - Cámara web
 - Linux (Ubuntu/Debian recomendado)
+
+## 🖥️ Uso de la GUI
+
+- Inicia el sistema con: `./scripts/ejecutar_sistema.sh`
+- La cámara se enciende automáticamente. Sigue las guías en pantalla.
+- Cuando la calidad de detección sea “EXCELENTE” y la distancia sea adecuada, comenzará una cuenta regresiva de 3 segundos y se realizará la captura automáticamente.
+- Para calibrar: ingresa tu estatura real en la UI. El sistema calculará un offset usando la predicción sin calibración y lo guardará en `modelos/calibracion_*.json`.
+
+## 🧪 Ejecución Headless (sin GUI)
+
+- Ejecuta N predicciones desde una carpeta de imágenes o cámara:
+  - `./venv/bin/python scripts/predicciones_headless.py --images-dir <carpeta> --num 5`
+- Analiza offsets y estadísticas (media, desviación):
+  - `./venv/bin/python scripts/analizar_offsets.py`
+- Los resultados se guardan en `resultados_predicciones/` con ambos valores: crudo (sin calibrar) y calibrado.
 
 ## 📖 Documentación Completa
 

@@ -1,200 +1,257 @@
 ════════════════════════════════════════════════════════════════════
-INSTRUCCIONES FINALES - Sistema de Predicción de Estatura
+INSTRUCCIONES FINALES - Sistema de Predicción de Estatura (TFLite)
 ════════════════════════════════════════════════════════════════════
 
-✅ Scripts creados y listos para usar:
+✅ PROYECTO ACTUALIZADO A TENSORFLOW LITE
 
-1. limpiar_proyecto.sh       - Elimina archivos innecesarios
-2. setup_entorno.sh          - Crea el entorno virtual Python
-3. instalar_dependencias.sh  - Instala paquetes necesarios
-4. ejecutar_sistema.sh       - Ejecuta el programa principal
-5. inicio_rapido.sh          - Hace todo automáticamente
+• Modelo: DNN convertido a .tflite (inferencia rápida y ligera)
+• Python 3.12: usa TensorFlow (tf.lite.Interpreter) como fallback
+• Python < 3.12: usa tflite-runtime (más ligero)
+• Auto-captura: cuenta regresiva de 3 segundos cuando detección es "EXCELENTE"
+• Calibración: ajuste por offset aditivo contra tu estatura real
 
+✅ Scripts y utilidades disponibles:
 
-════════════════════════════════════════════════════════════════════
-OPCIÓN 1: INICIO RÁPIDO (RECOMENDADO)
-════════════════════════════════════════════════════════════════════
+Python (scripts/):
+  • predicciones_headless.py  - Inferencia sin GUI (por lotes)
+  • analizar_offsets.py       - Análisis de calibraciones/resultados
+  • entrenar_dnn_altura.py    - (Opcional) Entrenamiento DNN
+  • generar_dataset_sintetico.py - (Opcional) Datos sintéticos
 
-Ejecuta este comando para hacer todo automáticamente:
-
-    ./inicio_rapido.sh
-
-Esto hará:
-  • Limpieza del proyecto
-  • Creación del entorno virtual
-  • Instalación de dependencias
-  • Ejecución del sistema
+Programa principal:
+  • app/captura_y_prediccion.py - GUI con captura y calibración
 
 
 ════════════════════════════════════════════════════════════════════
-OPCIÓN 2: PASO A PASO
+CONFIGURACIÓN INICIAL (Primera vez)
 ════════════════════════════════════════════════════════════════════
 
-Si prefieres hacerlo manualmente:
+1. Crear entorno virtual:
+   python3 -m venv venv
 
-1. Limpiar proyecto (OPCIONAL):
-   ./limpiar_proyecto.sh
-
-2. Crear entorno virtual:
-   ./setup_entorno.sh
+2. Activar entorno:
+   source venv/bin/activate
 
 3. Instalar dependencias:
-   ./instalar_dependencias.sh
+   pip install --upgrade pip setuptools wheel
+   pip install -r requirements.txt
 
-4. Ejecutar sistema:
-   ./ejecutar_sistema.sh
-
-
-════════════════════════════════════════════════════════════════════
-¿QUÉ HACE CADA SCRIPT?
-════════════════════════════════════════════════════════════════════
-
-📌 limpiar_proyecto.sh
-   • Elimina modelos antiguos
-   • Elimina scripts de entrenamiento (ya no se necesitan)
-   • Elimina documentación redundante
-   • Elimina cache de Python
-   • MANTIENE solo lo necesario para ejecutar el sistema
-
-📌 setup_entorno.sh
-   • Crea carpeta "venv/" con Python aislado
-   • Actualiza pip
-   • Prepara el entorno para instalar paquetes
-
-📌 instalar_dependencias.sh
-   • Instala OpenCV (cámara y procesamiento)
-   • Instala MediaPipe (detección de pose)
-   • Instala NumPy, Pillow, Joblib, Scikit-learn
-   • Verifica que todo se instaló correctamente
-
-📌 ejecutar_sistema.sh
-   • Activa el entorno virtual
-   • Verifica que el modelo existe
-   • Ejecuta captura_y_prediccion.py
-   • Muestra la interfaz gráfica
-
-
-════════════════════════════════════════════════════════════════════
-ARCHIVOS QUE SE MANTENDRÁN DESPUÉS DE LA LIMPIEZA
-════════════════════════════════════════════════════════════════════
-
-✅ Programa principal:
-   captura_y_prediccion.py
-
-✅ Modelo más reciente (el mejor):
-   modelo_altura_random_forest_20251015_215630.pkl
-   scaler_20251015_215630.pkl
-   modelo_metadata_20251015_215630.json
-   calibracion_20251015_215630.json
-
-✅ Dependencias:
-   haarcascade_frontalface_default.xml
-   requirements.txt
-
-✅ Scripts de configuración:
-   limpiar_proyecto.sh
-   setup_entorno.sh
-   instalar_dependencias.sh
-   ejecutar_sistema.sh
-   inicio_rapido.sh
-
-✅ Documentación:
-   README.md (actualizado)
-   README_FINAL.md (nuevo, con instrucciones completas)
-
-✅ Carpetas de datos:
-   capturas_estatura/
-   resultados_predicciones/
-
-
-════════════════════════════════════════════════════════════════════
-LO QUE SE ELIMINARÁ
-════════════════════════════════════════════════════════════════════
-
-❌ Modelos antiguos:
-   modelo_*_195700.pkl (modelo viejo)
-   modelo_*_210428.pkl (modelo intermedio)
-
-❌ Scripts de entrenamiento (ya no se necesitan):
-   train_height_model.py
-   entrenar_con_datos_reales.py
-   generar_dataset_realista.py
-   descargar_datasets.py
-   calibrar_modelo.py
-   demo_automatizado.py
-
-❌ Datasets completos (ocupan mucho espacio):
-   datasets_reales/ (4,000 registros - ya entrenado)
-
-❌ Backups:
-   archivos_backup/
-
-❌ Cache de Python:
-   __pycache__/
-   *.pyc
-
-❌ Documentación redundante:
-   GUIA_*.md (muchas guías)
-   RESUMEN_*.md
-   LEEME_PRIMERO.md
-   etc.
-
-❌ Entorno virtual viejo:
-   venv_height/ (se creará uno nuevo: venv/)
-
-
-════════════════════════════════════════════════════════════════════
-TAMAÑO ESTIMADO
-════════════════════════════════════════════════════════════════════
-
-Antes de limpiar:  ~500 MB
-Después de limpiar: ~20 MB (sin venv)
-Con venv instalado: ~200 MB
+4. Verificar instalación:
+   python -c "import cv2, mediapipe, numpy, PIL, joblib, sklearn; print('OK')"
 
 
 ════════════════════════════════════════════════════════════════════
 EJECUCIÓN DIARIA
 ════════════════════════════════════════════════════════════════════
 
-Después de configurar TODO (primera vez), para usar el sistema
-cada día solo necesitas:
+Después de configurar el entorno (una sola vez), para usar el sistema
+cada día:
 
-    ./ejecutar_sistema.sh
+1. Activar entorno:
+   source venv/bin/activate
 
-O si prefieres activar el entorno manualmente:
+2. Ejecutar la GUI:
+   python app/captura_y_prediccion.py
 
-    source venv/bin/activate
-    python captura_y_prediccion.py
+   La cámara se enciende automáticamente. Sigue las guías en pantalla.
+   Cuando la calidad sea "EXCELENTE", comenzará una cuenta regresiva
+   de 3 segundos y se realizará la captura automáticamente.
 
-
-════════════════════════════════════════════════════════════════════
-RECOMENDACIÓN FINAL
-════════════════════════════════════════════════════════════════════
-
-🎯 Para usuarios nuevos:
-
-    ./inicio_rapido.sh
-
-Este script hará TODO automáticamente en ~5 minutos.
-
-
-🎯 Para usuarios avanzados:
-
-    ./limpiar_proyecto.sh      # Limpiar primero
-    ./setup_entorno.sh         # Crear entorno
-    ./instalar_dependencias.sh # Instalar paquetes
-    ./ejecutar_sistema.sh      # Ejecutar
+3. Calibrar (opcional):
+   - Ingresa tu estatura real en la UI.
+   - El sistema calcula el offset usando la predicción sin calibración
+     y lo guarda en modelos/calibracion_*.json
 
 
 ════════════════════════════════════════════════════════════════════
-¿LISTO?
+USO AVANZADO
 ════════════════════════════════════════════════════════════════════
 
-Ejecuta:
+📌 Predicciones sin GUI (headless)
+   Ejecuta N predicciones desde una carpeta de imágenes o cámara:
 
-    ./inicio_rapido.sh
+   python scripts/predicciones_headless.py --images-dir ./capturas_estatura --num 5
 
-Y en 5 minutos tendrás el sistema completamente funcional.
+   O desde la cámara:
+   python scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
+
+   Los resultados se guardan en resultados_predicciones/ con ambos
+   valores: crudo (altura_sin_calibracion_cm) y calibrado (altura_predicha_cm).
+
+📌 Análisis de offsets y calibración
+   Analiza estadísticas de calibraciones y predicciones headless:
+
+   python scripts/analizar_offsets.py
+
+   Muestra tabla con Raw, Calibrada, Offset y Confianza; más estadísticas
+   (media, desviación, rango) para evaluar estabilidad y precisión.
+
+📌 Entrenamiento de modelos (opcional)
+   Si quieres entrenar un nuevo modelo DNN:
+
+   python scripts/entrenar_dnn_altura.py --csv datos.csv --output modelos/
+
+   Generará: modelo_altura_*.tflite, scaler_*.pkl, modelo_metadata_*.json
+
+   Para datos sintéticos de prueba:
+   python scripts/generar_dataset_sintetico.py --output datos_sinteticos.csv --num 1000
+
+
+════════════════════════════════════════════════════════════════════
+ESTRUCTURA ACTUAL DEL PROYECTO
+════════════════════════════════════════════════════════════════════
+
+sistema_altura/
+├── app/
+│   └── captura_y_prediccion.py       # Programa principal (GUI)
+├── modelos/
+│   ├── modelo_altura_dnn_20251114_230532.tflite  # Modelo TFLite (inferencia)
+│   ├── scaler_20251114_230532.pkl                # Normalizador
+│   ├── modelo_metadata_20251114_230532.json      # Metadata del modelo
+│   ├── calibracion_20251114_230532.json          # Calibración aplicada
+│   └── (modelos legacy: .pkl de Random Forest)   # Opcional: eliminar
+├── scripts/
+│   ├── predicciones_headless.py      # Inferencia sin GUI
+│   ├── analizar_offsets.py           # Análisis de calibraciones
+│   ├── entrenar_dnn_altura.py        # (Opcional) Entrenamiento
+│   └── generar_dataset_sintetico.py  # (Opcional) Datos sintéticos
+├── config/
+│   └── haarcascade_frontalface_default.xml  # Detector de rostros
+├── capturas_estatura/                # Fotos capturadas (recientes)
+├── resultados_predicciones/          # Resultados JSON/imagenes
+├── docs/
+│   ├── README.md                     # Documentación completa
+│   └── INSTRUCCIONES_FINALES.txt     # Este archivo
+├── venv/                             # Entorno virtual Python
+├── requirements.txt                  # Dependencias
+├── .gitignore                        # Reglas de Git
+└── README.md                         # Resumen del proyecto
+
+
+════════════════════════════════════════════════════════════════════
+ARCHIVOS ESENCIALES
+════════════════════════════════════════════════════════════════════
+
+✅ Para ejecución:
+   • app/captura_y_prediccion.py
+   • modelos/modelo_altura_dnn_20251114_230532.tflite
+   • modelos/scaler_20251114_230532.pkl
+   • modelos/modelo_metadata_20251114_230532.json
+   • modelos/calibracion_20251114_230532.json (opcional)
+   • config/haarcascade_frontalface_default.xml
+   • requirements.txt
+
+✅ Para desarrollo/análisis:
+   • scripts/*.py (headless, análisis, entrenamiento)
+
+✅ Datos generados (no versionados):
+   • capturas_estatura/*.jpg
+   • resultados_predicciones/*.json y *.jpg
+
+
+════════════════════════════════════════════════════════════════════
+LIMPIEZA Y MANTENIMIENTO
+════════════════════════════════════════════════════════════════════
+
+Si el proyecto crece, puedes eliminar:
+   • Modelos legacy: modelos/*random_forest*.pkl
+   • Resultados antiguos: resultados_predicciones/ (conservar últimos 10)
+   • Capturas antiguas: capturas_estatura/ (conservar últimas 10)
+   • Cache de Python: __pycache__/, *.pyc
+
+
+════════════════════════════════════════════════════════════════════
+TAMAÑO ESTIMADO DEL PROYECTO
+════════════════════════════════════════════════════════════════════
+
+Sin venv:         ~10-20 MB (código, modelos TFLite, config)
+Con venv (3.12):  ~300-500 MB (TensorFlow completo + dependencias)
+Con venv (<3.12): ~150-200 MB (tflite-runtime + dependencias)
+
+Modelos TFLite:   ~1-5 MB por modelo
+Scaler/Metadata:  <1 MB
+Capturas/Results: Variable según uso
+
+
+════════════════════════════════════════════════════════════════════
+DEPENDENCIAS INSTALADAS
+════════════════════════════════════════════════════════════════════
+
+Core (inferencia):
+  • opencv-python >= 4.8.0
+  • mediapipe >= 0.9.0
+  • numpy >= 1.26.0, < 2.2.0
+  • pillow >= 10.0.0
+  • joblib >= 1.3.0
+  • scikit-learn >= 1.3.0
+
+TensorFlow Lite (según Python):
+  • Python < 3.12: tflite-runtime >= 2.14.0 (ligero)
+  • Python >= 3.12: tensorflow >= 2.19.0, < 2.20.0 (fallback)
+                    protobuf >= 4.25.3, < 5
+
+Opcional (entrenamiento):
+  • pandas >= 2.0.0
+
+
+════════════════════════════════════════════════════════════════════
+SOLUCIÓN DE PROBLEMAS
+════════════════════════════════════════════════════════════════════
+
+❌ Error: ModuleNotFoundError: No module named 'mediapipe'
+   Solución: Activa el venv antes de ejecutar
+      source venv/bin/activate
+      python app/captura_y_prediccion.py
+
+❌ Error: No se pudo abrir la cámara
+   Solución: Verifica permisos y dispositivo
+      ls -l /dev/video*
+      # Si falla, prueba con otro índice:
+      # En captura_y_prediccion.py, cambiar: cv2.VideoCapture(0) → cv2.VideoCapture(1)
+
+❌ Predicciones muy altas o bajas (ej. >250 cm o <100 cm)
+   Solución: Calibra con tu estatura real en la UI o edita manualmente
+      modelos/calibracion_*.json
+
+❌ Numpy version warning
+   Solución: Fijar numpy==2.1.3 en requirements.txt si persiste
+
+
+════════════════════════════════════════════════════════════════════
+INICIO RÁPIDO (RESUMEN)
+════════════════════════════════════════════════════════════════════
+
+# 1. Crear entorno virtual
+python3 -m venv venv
+
+# 2. Activar entorno
+source venv/bin/activate
+
+# 3. Instalar dependencias
+pip install -r requirements.txt
+
+# 4. Ejecutar GUI
+python app/captura_y_prediccion.py
+
+# 5. (Opcional) Predicciones headless
+python scripts/predicciones_headless.py --num 5
+
+# 6. (Opcional) Análisis de resultados
+python scripts/analizar_offsets.py
+
+
+════════════════════════════════════════════════════════════════════
+CONTACTO Y RECURSOS
+════════════════════════════════════════════════════════════════════
+
+Documentación completa:  docs/README.md
+README del proyecto:     README.md
+Repositorio (si aplica): [URL de tu repositorio Git]
+
+Para más información sobre:
+  • MediaPipe Pose: https://google.github.io/mediapipe/solutions/pose
+  • TensorFlow Lite: https://www.tensorflow.org/lite
+  • ANSUR II (dataset): https://www.openlab.psu.edu/ansur2/
 
 
 ════════════════════════════════════════════════════════════════════
