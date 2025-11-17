@@ -106,11 +106,35 @@ Entrenamiento/Conversión (opcional):
 
 ## 🧪 Ejecución Headless (sin GUI)
 
-- Ejecuta N predicciones desde una carpeta de imágenes o cámara:
-  - `./venv/bin/python scripts/predicciones_headless.py --images-dir <carpeta> --num 5`
-- Analiza offsets y estadísticas (media, desviación):
-  - `./venv/bin/python scripts/analizar_offsets.py`
-- Los resultados se guardan en `resultados_predicciones/` con ambos valores: crudo (sin calibrar) y calibrado.
+El script `scripts/predicciones_headless.py` ahora soporta 3 modos:
+
+- **Modo cámara** (sin GUI): captura `N` predicciones desde la webcam
+  ```bash
+  ./venv/bin/python scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
+  ```
+
+- **Modo carpeta**: procesa hasta `N` imágenes de una carpeta
+  ```bash
+  ./venv/bin/python scripts/predicciones_headless.py --images-dir capturas_estatura --num 10
+  ```
+
+- **Imagen única**: procesa una sola imagen puntual
+  ```bash
+  ./venv/bin/python scripts/predicciones_headless.py --image capturas_estatura/mi_foto.jpg
+  ```
+
+Salidas y métricas:
+- Guarda en `resultados_predicciones/` una imagen anotada `prediccion_headless_*.jpg` y un JSON `prediccion_headless_*.json`.
+- El JSON incluye: `altura_predicha_cm` (calibrada), `altura_sin_calibracion_cm` (cruda), `confianza`, `visibilidad_landmarks`, y `caracteristicas` clave.
+
+Notas de uso:
+- Extensiones de imagen soportadas: `.jpg`, `.jpeg`, `.png`.
+- Para mejores resultados en imágenes estáticas: cuerpo completo visible, distancia ~2 m, luz uniforme, fondo contrastante.
+
+Análisis de calibraciones/offsets:
+```bash
+./venv/bin/python scripts/analizar_offsets.py
+```
 
 ## 📖 Documentación Completa
 

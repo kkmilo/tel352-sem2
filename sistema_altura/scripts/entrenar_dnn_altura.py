@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Entrenamiento de un modelo DNN para estimar estatura y conversión a TensorFlow Lite.
+"""Entrenamiento de un modelo DNN para estimar estatura.
 
 Uso:
     python scripts/entrenar_dnn_altura.py --dataset data/altura_features.csv \

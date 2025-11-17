@@ -68,15 +68,22 @@ USO AVANZADO
 ════════════════════════════════════════════════════════════════════
 
 📌 Predicciones sin GUI (headless)
-   Ejecuta N predicciones desde una carpeta de imágenes o cámara:
+   Ahora el script soporta tres modos de ejecución:
 
-   python scripts/predicciones_headless.py --images-dir ./capturas_estatura --num 5
+   1) Desde la cámara (sin GUI):
+      python scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
 
-   O desde la cámara:
-   python scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
+   2) Procesar una carpeta de imágenes (hasta N):
+      python scripts/predicciones_headless.py --images-dir ./capturas_estatura --num 10
 
-   Los resultados se guardan en resultados_predicciones/ con ambos
-   valores: crudo (altura_sin_calibracion_cm) y calibrado (altura_predicha_cm).
+   3) Procesar una sola imagen:
+      python scripts/predicciones_headless.py --image ./capturas_estatura/mi_foto.jpg
+
+   Salida:
+   • Imagen anotada y JSON por predicción en resultados_predicciones/
+   • El JSON incluye: altura_predicha_cm (calibrada), altura_sin_calibracion_cm (cruda),
+     confianza, visibilidad_landmarks y características clave (px)
+   • Extensiones soportadas: .jpg/.jpeg/.png
 
 📌 Análisis de offsets y calibración
    Analiza estadísticas de calibraciones y predicciones headless:

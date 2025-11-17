@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """
-Script headless para capturar N predicciones desde la cámara sin GUI.
+Script headless para generar predicciones sin GUI, desde cámara o imágenes.
 
 - Carga automáticamente el último modelo TFLite en modelos/
 - Carga scaler, metadata y calibración (si existe)
-- Abre la cámara, obtiene pose con MediaPipe, extrae 15 features en el mismo
-  orden del entrenamiento, ejecuta TFLite y guarda resultados (imagen anotada + JSON)
+- Modo cámara: abre la cámara, obtiene pose, extrae 15 features en el mismo
+    orden del entrenamiento, ejecuta TFLite y guarda resultados (imagen anotada + JSON)
+- Modo imágenes: procesa una carpeta de imágenes (--images-dir) o una sola imagen (--image)
 
 Uso:
+    # Desde cámara
     python scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
+
+    # Procesar una carpeta de imágenes (hasta N)
+    python scripts/predicciones_headless.py --images-dir capturas_estatura --num 10
+
+    # Procesar una sola imagen
+    python scripts/predicciones_headless.py --image capturas_estatura/mi_foto.jpg
 
 Requisitos: opencv-python, mediapipe, numpy, joblib, tflite-runtime (o tensorflow>=2.19 como fallback)
 """
@@ -197,7 +205,8 @@ def main():
     parser.add_argument('--num', type=int, default=5, help='Número de predicciones a realizar')
     parser.add_argument('--device', type=int, default=0, help='Índice de cámara (0 por defecto)')
     parser.add_argument('--cooldown', type=float, default=1.5, help='Segundos entre predicciones (modo cámara)')
-    parser.add_argument('--images-dir', type=str, default='', help='Si se especifica, procesa imágenes existentes en esta carpeta en lugar de usar la cámara')
+    parser.add_argument('--images-dir', type=str, default='', help='Procesa imágenes existentes en esta carpeta en lugar de usar la cámara')
+    parser.add_argument('--image', type=str, default='', help='Ruta a una sola imagen para procesar en lugar de usar la cámara')
     args = parser.parse_args()
 
     cfg = cargar_modelo_automatico()
@@ -214,19 +223,29 @@ def main():
     pose = mp_pose.Pose(static_image_mode=static_mode, model_complexity=2, enable_segmentation=False,
                         min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-    usar_imagenes = bool(args.images_dir)
+    # Modo imágenes si se especifica --images-dir o --image
+    usar_imagenes = bool(args.images_dir or args.image)
     cap = None
     image_files = []
     if usar_imagenes:
-        base = Path(args.images_dir).expanduser().resolve()
-        if not base.exists():
-            raise FileNotFoundError(f"No existe la carpeta de imágenes: {base}")
-        image_files = sorted([
-            p for p in base.iterdir() if p.suffix.lower() in {'.jpg', '.jpeg', '.png'}
-        ])[:args.num]
-        if not image_files:
-            raise FileNotFoundError(f"No se encontraron imágenes en {base}")
-        print(f"🖼️  Procesando {len(image_files)} imágenes desde {base}")
+        if args.image:
+            img_path = Path(args.image).expanduser().resolve()
+            if not img_path.exists():
+                raise FileNotFoundError(f"No existe la imagen: {img_path}")
+            if img_path.suffix.lower() not in {'.jpg', '.jpeg', '.png'}:
+                raise ValueError(f"Extensión no soportada: {img_path.suffix} (use .jpg/.jpeg/.png)")
+            image_files = [img_path]
+            args.num = 1  # Forzar 1 predicción para imagen única
+            print(f"🖼️  Procesando 1 imagen: {img_path}")
+        else:
+            base = Path(args.images_dir).expanduser().resolve()
+            if not base.exists():
+                raise FileNotFoundError(f"No existe la carpeta de imágenes: {base}")
+            all_imgs = sorted([p for p in base.iterdir() if p.suffix.lower() in {'.jpg', '.jpeg', '.png'}])
+            if not all_imgs:
+                raise FileNotFoundError(f"No se encontraron imágenes en {base}")
+            image_files = all_imgs[: max(1, args.num)]
+            print(f"🖼️  Procesando {len(image_files)} imágenes desde {base}")
     else:
         cap = cv2.VideoCapture(args.device)
         if not cap.isOpened():
