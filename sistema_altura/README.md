@@ -36,12 +36,7 @@ sistema_altura/
 │   ├── modelo_metadata_*.json    # Metadata del modelo
 │   └── calibracion_*.json        # Calibración aplicada
 ├── scripts/                      # Scripts de configuración y utilidades
-│   ├── setup_entorno.sh          # Crear entorno virtual
-│   ├── instalar_dependencias.sh  # Instalar paquetes
-│   ├── ejecutar_sistema.sh       # Ejecutar el sistema (GUI)
-│   ├── inicio_rapido.sh          # Instalación automática
-│   ├── limpiar_proyecto.sh       # Limpieza de artefactos antiguos
-│   ├── predicciones_headless.py  # Inferencia sin GUI (por lotes)
+│   ├── predicciones_headless.py  # Inferencia sin GUI
 │   ├── analizar_offsets.py       # Análisis de calibraciones/resultados
 │   ├── entrenar_dnn_altura.py    # (Opcional) Entrenamiento DNN
 │   └── generar_dataset_sintetico.py # (Opcional) Datos sintéticos
