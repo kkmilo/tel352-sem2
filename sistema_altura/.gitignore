@@ -1,13 +1,8 @@
 # Ignorar entorno virtual
 venv/
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
 # Archivos temporales y generados por el sistema
+__pycache__
 *.log
 *.tmp
 *.swp
@@ -21,6 +16,16 @@ Thumbs.db
 # Archivos de configuración de usuario
 .env
 *.env
+
+# Ignorar contenido de carpetas pero mantener las carpetas
+capturas_estatura/*
+!capturas_estatura/.gitkeep
+resultados_predicciones/*
+!resultados_predicciones/.gitkeep
+app/capturas_estatura/*
+!app/capturas_estatura/.gitkeep
+app/resultados_predicciones/*
+!app/resultados_predicciones/.gitkeep
 
 # Opcional: Ignorar modelos grandes si no quieres subirlos (descomenta)
 # modelos/*.tflite
