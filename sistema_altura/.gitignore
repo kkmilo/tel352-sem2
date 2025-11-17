@@ -7,22 +7,20 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Archivos temporales y de sistema
+# Archivos temporales y generados por el sistema
+*.log
+*.tmp
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+*.json
+*.jpg
+*.png
 
 # Archivos de configuración de usuario
 .env
 *.env
-
-# Archivos de logs
-*.log
-
-# Archivos de datos generados (capturas y predicciones) - no versionar
-capturas_estatura/
-resultados_predicciones/
 
 # Opcional: Ignorar modelos grandes si no quieres subirlos (descomenta)
 # modelos/*.tflite
