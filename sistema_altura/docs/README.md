@@ -85,12 +85,47 @@ Al ejecutar el sistema verás:
 
 ### Modo Sin Interfaz (Headless)
 
-Para procesamiento por lotes sin GUI:
+Ejecuta predicciones sin GUI usando cámara o imágenes existentes.
+
+Opciones principales:
+
+- `--num`: número de predicciones a generar (por defecto 5)
+- `--device`: índice de cámara (por defecto 0)
+- `--cooldown`: segundos entre capturas en modo cámara (por defecto 1.5)
+- `--images-dir`: carpeta con imágenes `.jpg/.jpeg/.png` a procesar
+- `--image`: ruta a una sola imagen a procesar
+
+Ejemplos:
 
 ```bash
+# Activar entorno
 source venv/bin/activate
-python3 scripts/predicciones_headless.py
+
+# 1) Desde cámara (5 predicciones, cámara 0, cooldown 1.5s)
+python3 scripts/predicciones_headless.py --num 5 --device 0 --cooldown 1.5
+
+# 2) Procesar una carpeta de imágenes (hasta N)
+python3 scripts/predicciones_headless.py --images-dir capturas_estatura --num 10
+
+# 3) Procesar una sola imagen
+python3 scripts/predicciones_headless.py --image capturas_estatura/mi_foto.jpg
 ```
+
+Salidas generadas:
+
+- Carpeta `resultados_predicciones/` con:
+  - `prediccion_headless_YYYYMMDD_HHMMSS.jpg`: imagen anotada con landmarks y altura predicha
+  - `prediccion_headless_YYYYMMDD_HHMMSS.json`: resultado estructurado con campos clave:
+    - `altura_predicha_cm`, `altura_sin_calibracion_cm`, `confianza`, `visibilidad_landmarks`
+    - `imagen_original`, `imagen_anotada`, `timestamp`, `fecha`
+    - `caracteristicas` (resumen de métricas en píxeles) y `modelo_usado`, `mae_modelo`
+- En modo cámara, la imagen original se guarda en `capturas_estatura/` como `captura_headless_*.jpg`.
+
+Notas:
+
+- El script carga automáticamente el modelo TFLite más reciente en `modelos/` junto con su `scaler_*.pkl`, `modelo_metadata_*.json` y, si existe, `calibracion_*.json` (aplica offset aditivo a la salida).
+- Si no estás en un entorno virtual, el script mostrará una advertencia. Asegúrate de ejecutar `source venv/bin/activate`.
+- Dependencias: `opencv-python`, `mediapipe`, `numpy`, `joblib` y `tflite-runtime` (o `tensorflow>=2.19` como alternativa para Python 3.12+).
 
 Analizar resultados de calibración:
 
@@ -252,15 +287,41 @@ Consejos de ajuste fino:
 
 ### Características Detectadas
 
-1. Distancia nariz-tobillo (píxeles)
-2. Proporción pierna/torso
-3. Proporción altura/ancho
-4. Ancho de hombros relativo
-5. Longitud de muslo
-6. Altura de imagen
-7. Ancho de imagen
-8. Confianza promedio de detección
-9-15. Visibilidad de puntos clave
+Estas son las 15 features que se extraen y alimentan al modelo, en el mismo orden:
+
+1. Altura corporal en píxeles (nariz→tobillos)
+2. Longitud de pierna en píxeles (caderas→tobillos)
+3. Longitud de torso en píxeles (hombros→caderas)
+4. Ancho de hombros en píxeles
+5. Ancho de caderas en píxeles
+6. Proporción pierna/torso
+7. Proporción altura/ancho (altura corporal px / ancho hombros px)
+8. Ancho de imagen (px)
+9. Alto de imagen (px)
+10. Confianza promedio de landmarks
+11. Visibilidad nariz
+12. Visibilidad hombro izquierdo
+13. Visibilidad hombro derecho
+14. Visibilidad cadera izquierda
+15. Visibilidad cadera derecha
+
+En los resultados JSON se publica un resumen de características con un subconjunto:
+
+- `body_height_px`, `leg_length_px`, `torso_length_px`, `shoulder_width_px`, `hip_width_px`
+
+Ejemplo:
+
+```json
+{
+  "caracteristicas": {
+    "body_height_px": 361.77,
+    "leg_length_px": 166.72,
+    "torso_length_px": 148.11,
+    "shoulder_width_px": 94.0,
+    "hip_width_px": 52.96
+  }
+}
+```
 
 ## 📄 Licencia
 
