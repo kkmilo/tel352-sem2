@@ -1,19 +1,5 @@
 # Catálogo de prendas de prueba 
 
-traducccion_medidas = {
-    "height": "altura",
-    "waist": "cintura",
-    "belly": "estomago",
-    "chest": "pecho",
-    "wrist": "muñeca",
-    "neck": "cuello",
-    "arm length": "largo_brazo",
-    "thigh": "muslo",
-    "shoulder width": "ancho_hombros",
-    "hips": "cadera",
-    "ankle": "tobillo"
-}
-
 
 prendas_camisas = [
     {"nombre": "Camisa Slim Fit Talla S", "tipo": "camisa", "medidas": {"pecho": 92, "cintura": 78, "ancho_hombros": 43, "largo_brazo": 61, "cuello": 37}},

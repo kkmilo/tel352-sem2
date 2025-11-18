@@ -77,7 +77,7 @@ class DataLoader(object):
         files = data_utils.get_all_files(self.dataset_dir, self.datasets)
 
         do_shuffle = True
-        fqueue = tf.train.string_input_producer(
+        fqueue = tf.compat.v1.train.string_input_producer(
             files, shuffle=do_shuffle, name="input")
         image, label = self.read_data(fqueue, has_3d=False)
         min_after_dequeue = 5000
@@ -87,7 +87,7 @@ class DataLoader(object):
         pack_these = [image, label]
         pack_name = ['image', 'label']
 
-        all_batched = tf.train.shuffle_batch(
+        all_batched = tf.compat.v1.train.shuffle_batch(
             pack_these,
             batch_size=self.batch_size,
             num_threads=num_threads,
@@ -135,13 +135,13 @@ class DataLoader(object):
 
         do_shuffle = True
 
-        fqueue_yes3d = tf.train.string_input_producer(
+        fqueue_yes3d = tf.compat.v1.train.string_input_producer(
             files_yes3d, shuffle=do_shuffle, name="input_w3d")
         image, label, label3d, has_smpl3d = self.read_data(
             fqueue_yes3d, has_3d=True)
 
         if len(files_no3d) != 0:
-            fqueue_no3d = tf.train.string_input_producer(
+            fqueue_no3d = tf.compat.v1.train.string_input_producer(
                 files_no3d, shuffle=do_shuffle, name="input_wout3d")
             image_no3d, label_no3d = self.read_data(fqueue_no3d, has_3d=False)
             label3d_no3d = tf.zeros_like(label3d)
@@ -166,7 +166,7 @@ class DataLoader(object):
         min_after_dequeue = 2000
         capacity = min_after_dequeue + 3 * self.batch_size
 
-        image_batch, label_batch, label3d_batch, bool_batch = tf.train.shuffle_batch(
+        image_batch, label_batch, label3d_batch, bool_batch = tf.compat.v1.train.shuffle_batch(
             [image, label, label3d, has_3dgt],
             batch_size=self.batch_size,
             num_threads=8,
@@ -176,7 +176,7 @@ class DataLoader(object):
             name='input_batch_train_3d')
 
         if self.data_format == 'NCHW':
-            image_batch = tf.transpose(image_batch, [0, 3, 1, 2])
+            image_batch = tf.transpose(a=image_batch, perm=[0, 3, 1, 2])
         elif self.data_format == 'NHWC':
             pass
         else:
@@ -218,8 +218,8 @@ class DataLoader(object):
         """
         files = list of tf records.
         """
-        with tf.name_scope('input_smpl_loader'):
-            filename_queue = tf.train.string_input_producer(
+        with tf.compat.v1.name_scope('input_smpl_loader'):
+            filename_queue = tf.compat.v1.train.string_input_producer(
                 files, shuffle=True)
 
             mosh_batch_size = self.batch_size * self.config.num_stage
@@ -228,7 +228,7 @@ class DataLoader(object):
             capacity = min_after_dequeue + 3 * mosh_batch_size
 
             pose, shape = data_utils.read_smpl_data(filename_queue)
-            pose_batch, shape_batch = tf.train.batch(
+            pose_batch, shape_batch = tf.compat.v1.train.batch(
                 [pose, shape],
                 batch_size=mosh_batch_size,
                 num_threads=4,
@@ -238,8 +238,8 @@ class DataLoader(object):
             return pose_batch, shape_batch
 
     def read_data(self, filename_queue, has_3d=False):
-        with tf.name_scope(None, 'read_data', [filename_queue]):
-            reader = tf.TFRecordReader()
+        with tf.name_scope(name='read_data'):
+            reader = tf.compat.v1.TFRecordReader()
             _, example_serialized = reader.read(filename_queue)
             if has_3d:
                 image, image_size, label, center, fname, pose, shape, gt3d, has_smpl3d = data_utils.parse_example_proto(
@@ -264,7 +264,7 @@ class DataLoader(object):
                     image, image_size, label, center)
 
             # label should be K x 3
-            label = tf.transpose(label)
+            label = tf.transpose(a=label)
 
             if has_3d:
                 return image, label, label3d, has_smpl3d
@@ -278,9 +278,8 @@ class DataLoader(object):
                             center,
                             pose=None,
                             gt3d=None):
-        margin = tf.to_int32(self.output_size / 2)
-        with tf.name_scope(None, 'image_preprocessing',
-                           [image, image_size, label, center]):
+        margin = tf.cast(self.output_size / 2, dtype=tf.int32)
+        with tf.name_scope(name='image_preprocessing'):
             visibility = label[2, :]
             keypoints = label[:2, :]
 
@@ -296,7 +295,7 @@ class DataLoader(object):
             margin_safe = margin + self.trans_max + 50
             image_pad = data_utils.pad_image_edge(image, margin_safe)
             center_pad = center + margin_safe
-            keypoints_pad = keypoints + tf.to_float(margin_safe)
+            keypoints_pad = keypoints + tf.cast(margin_safe, dtype=tf.float32)
 
             start_pt = center_pad - margin
 
@@ -306,8 +305,8 @@ class DataLoader(object):
             bbox_size = tf.stack([self.output_size, self.output_size, 3])
 
             crop = tf.slice(image_pad, bbox_begin, bbox_size)
-            x_crop = keypoints_pad[0, :] - tf.to_float(start_pt[0])
-            y_crop = keypoints_pad[1, :] - tf.to_float(start_pt[1])
+            x_crop = keypoints_pad[0, :] - tf.cast(start_pt[0], dtype=tf.float32)
+            y_crop = keypoints_pad[1, :] - tf.cast(start_pt[1], dtype=tf.float32)
 
             crop_kp = tf.stack([x_crop, y_crop, visibility])
 

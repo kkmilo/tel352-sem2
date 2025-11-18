@@ -301,7 +301,7 @@ def resize_ui(event=None):
     if prenda_label.winfo_ismapped():
         prenda_label.place_configure(x=w * 0.35, y=h * 0.77)
     if prenda_menu.winfo_ismapped():
-        prenda_menu.place_configure(x=w * 0.47, y=h * 0.77)
+        prenda_menu.place_configure(x=w * 0.5, y=h * 0.77)
     if analisis.winfo_ismapped():
         analisis.place_configure(x=w * 0.60, y=h * 0.85)
 

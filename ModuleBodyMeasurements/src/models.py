@@ -16,28 +16,18 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+import tf_slim as slim
 
-from tensorflow.contrib.layers.python.layers.initializers import variance_scaling_initializer
-
+from tensorflow.keras.initializers import VarianceScaling
 
 def Encoder_resnet(x, is_training=True, weight_decay=0.001, reuse=False):
     """
     Resnet v2-50
-    Assumes input is [batch, height_in, width_in, channels]!!
-    Input:
-    - x: N x H x W x 3
-    - weight_decay: float
-    - reuse: bool->True if test
-
-    Outputs:
-    - cam: N x 3
-    - Pose vector: N x 72
-    - Shape vector: N x 10
-    - variables: tf variables
     """
-    from tensorflow.contrib.slim.python.slim.nets import resnet_v2
-    with tf.name_scope("Encoder_resnet", [x]):
+    from tf_slim.nets import resnet_v2
+    with tf.name_scope("Encoder_resnet"):
         with slim.arg_scope(
                 resnet_v2.resnet_arg_scope(weight_decay=weight_decay)):
             net, end_points = resnet_v2.resnet_v2_50(
@@ -47,7 +37,13 @@ def Encoder_resnet(x, is_training=True, weight_decay=0.001, reuse=False):
                 reuse=reuse,
                 scope='resnet_v2_50')
             net = tf.squeeze(net, axis=[1, 2])
-    variables = tf.contrib.framework.get_variables('resnet_v2_50')
+
+    # TF2-safe replacement
+    variables = tf.compat.v1.get_collection(
+        tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
+        scope='resnet_v2_50'
+    )
+
     return net, variables
 
 
@@ -57,19 +53,7 @@ def Encoder_fc3_dropout(x,
                         reuse=False,
                         name="3D_module"):
     """
-    3D inference module. 3 MLP layers (last is the output)
-    With dropout  on first 2.
-    Input:
-    - x: N x [|img_feat|, |3D_param|]
-    - reuse: bool
-
-    Outputs:
-    - 3D params: N x num_output
-      if orthogonal: 
-           either 85: (3 + 24*3 + 10) or 109 (3 + 24*4 + 10) for factored axis-angle representation
-      if perspective:
-          86: (f, tx, ty, tz) + 24*3 + 10, or 110 for factored axis-angle.
-    - variables: tf variables
+    3D inference module.
     """
     if reuse:
         print('Reuse is on!')
@@ -78,8 +62,11 @@ def Encoder_fc3_dropout(x,
         net = slim.dropout(net, 0.5, is_training=is_training, scope='dropout1')
         net = slim.fully_connected(net, 1024, scope='fc2')
         net = slim.dropout(net, 0.5, is_training=is_training, scope='dropout2')
-        small_xavier = variance_scaling_initializer(
-            factor=.01, mode='FAN_AVG', uniform=True)
+        small_xavier = VarianceScaling(
+            scale=0.01,
+            mode="fan_avg",
+            distribution="uniform"
+        )
         net = slim.fully_connected(
             net,
             num_output,
@@ -87,7 +74,12 @@ def Encoder_fc3_dropout(x,
             weights_initializer=small_xavier,
             scope='fc3')
 
-    variables = tf.contrib.framework.get_variables(scope)
+    # TF2-safe replacement
+    variables = tf.compat.v1.get_collection(
+        tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
+        scope=scope.name
+    )
+
     return net, variables
 
 
@@ -120,22 +112,10 @@ def Discriminator_separable_rotations(
         weight_decay,
 ):
     """
-    23 Discriminators on each joint + 1 for all joints + 1 for shape.
-    To share the params on rotations, this treats the 23 rotation matrices
-    as a "vertical image":
-    Do 1x1 conv, then send off to 23 independent classifiers.
-
-    Input:
-    - poses: N x 23 x 1 x 9, NHWC ALWAYS!!
-    - shapes: N x 10
-    - weight_decay: float
-
-    Outputs:
-    - prediction: N x (1+23) or N x (1+23+1) if do_joint is on.
-    - variables: tf variables
+    Separable rotation discriminator.
     """
     data_format = "NHWC"
-    with tf.name_scope("Discriminator_sep_rotations", [poses, shapes]):
+    with tf.name_scope("Discriminator_sep_rotations"):
         with tf.variable_scope("D") as scope:
             with slim.arg_scope(
                 [slim.conv2d, slim.fully_connected],
@@ -153,14 +133,13 @@ def Discriminator_separable_rotations(
                                 scope="pose_out_j%d" % i))
                     theta_out_all = tf.squeeze(tf.stack(theta_out, axis=1))
 
-                    # Do shape on it's own:
                     shapes = slim.stack(
                         shapes,
                         slim.fully_connected, [10, 5],
                         scope="shape_fc1")
                     shape_out = slim.fully_connected(
                         shapes, 1, activation_fn=None, scope="shape_final")
-                    """ Compute joint correlation prior!"""
+
                     nz_feat = 1024
                     poses_all = slim.flatten(poses, scope='vectorize')
                     poses_all = slim.fully_connected(
@@ -172,8 +151,13 @@ def Discriminator_separable_rotations(
                         1,
                         activation_fn=None,
                         scope="D_alljoints_out")
+
                     out = tf.concat([theta_out_all,
                                      poses_all_out, shape_out], 1)
 
-            variables = tf.contrib.framework.get_variables(scope)
+            # TF2-safe replacement
+            variables = tf.compat.v1.get_collection(
+                tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
+                scope=scope.name
+            )
             return out, variables

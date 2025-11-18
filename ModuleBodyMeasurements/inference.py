@@ -1,6 +1,6 @@
 import os
-from io import BytesIO
-from absl import flags
+#from io import BytesIO
+#from absl import flags
 
 import src.config
 import sys
@@ -12,7 +12,7 @@ from six.moves import urllib
 import numpy as np
 from PIL import Image
 import cv2, pdb, glob, argparse
-from demo import main
+#from demo import main
 import tensorflow as tf
 
 
@@ -33,7 +33,7 @@ class DeepLabModel(object):
 		for tar_info in tar_file.getmembers():
 			if self.FROZEN_GRAPH_NAME in os.path.basename(tar_info.name):
 				file_handle = tar_file.extractfile(tar_info)
-				graph_def = tf.GraphDef.FromString(file_handle.read())
+				graph_def = tf.compat.v1.GraphDef.FromString(file_handle.read())
 				break
 
 		tar_file.close()
@@ -44,7 +44,7 @@ class DeepLabModel(object):
 		with self.graph.as_default():
 			tf.import_graph_def(graph_def, name='')
 
-		self.sess = tf.Session(graph=self.graph)
+		self.sess = tf.compat.v1.Session(graph=self.graph)
 
 	def run(self, image):
 		"""Runs inference on a single image.
@@ -147,7 +147,7 @@ _TARBALL_NAME = _MODEL_URLS[MODEL_NAME]
 
 model_dir = 'deeplab_model'
 if not os.path.exists(model_dir):
-  tf.gfile.MakeDirs(model_dir)
+  tf.io.gfile.makedirs(model_dir)
 
 download_path = os.path.join(model_dir, _TARBALL_NAME)
 if not os.path.exists(download_path):
@@ -216,7 +216,7 @@ bg_removed = res + (255 - cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR))
 #config.batch_size = 1
 
 #cv2.imwrite(dir_name.replace('img','back'),remove_bg)
-main(bg_removed,args.height,None)
+#main(bg_removed,args.height,None)
 #name= dir_name.replace('img','masksDL')
 #cv2.imwrite(name,(255*mask_sel).astype(np.uint8))
 #cv2.imwrite(dir_name.replace('img','back'),back_align)

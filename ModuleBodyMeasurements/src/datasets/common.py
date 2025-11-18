@@ -18,28 +18,28 @@ class ImageCoder(object):
 
     def __init__(self):
         # Create a single Session to run all image coding calls.
-        self._sess = tf.Session()
+        self._sess = tf.compat.v1.Session()
 
         # Initializes function that converts PNG to JPEG data.
-        self._png_data = tf.placeholder(dtype=tf.string)
+        self._png_data = tf.compat.v1.placeholder(dtype=tf.string)
         image = tf.image.decode_png(self._png_data, channels=3)
         self._png_to_jpeg = tf.image.encode_jpeg(
             image, format='rgb', quality=100)
 
         # Initializes function that decodes RGB JPEG data.
-        self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
+        self._decode_jpeg_data = tf.compat.v1.placeholder(dtype=tf.string)
         self._decode_jpeg = tf.image.decode_jpeg(
             self._decode_jpeg_data, channels=3)
 
-        self._encode_jpeg_data = tf.placeholder(dtype=tf.uint8)
+        self._encode_jpeg_data = tf.compat.v1.placeholder(dtype=tf.uint8)
         self._encode_jpeg = tf.image.encode_jpeg(
             self._encode_jpeg_data, format='rgb')
 
-        self._decode_png_data = tf.placeholder(dtype=tf.string)
+        self._decode_png_data = tf.compat.v1.placeholder(dtype=tf.string)
         self._decode_png = tf.image.decode_png(
             self._decode_png_data, channels=3)
 
-        self._encode_png_data = tf.placeholder(dtype=tf.uint8)
+        self._encode_png_data = tf.compat.v1.placeholder(dtype=tf.uint8)
         self._encode_png = tf.image.encode_png(self._encode_png_data)
 
     def png_to_jpeg(self, image_data):
@@ -242,7 +242,7 @@ def read_images_from_tfrecords(tf_path, img_size=224, sess=None):
         exit(1)
 
     if sess is None:
-        sess = tf.Session()
+        sess = tf.compat.v1.Session()
 
     t0 = time()
     all_images, all_kps, all_gt3ds = [], [], []
@@ -250,10 +250,10 @@ def read_images_from_tfrecords(tf_path, img_size=224, sess=None):
     itr = 0
 
     # Decode op graph
-    image_data_pl = tf.placeholder(dtype=tf.string)
+    image_data_pl = tf.compat.v1.placeholder(dtype=tf.string)
     decode_op = tf.image.decode_jpeg(image_data_pl)
 
-    for serialized_ex in tf.python_io.tf_record_iterator(tf_path):
+    for serialized_ex in tf.compat.v1.python_io.tf_record_iterator(tf_path):
         example = tf.train.Example()
         example.ParseFromString(serialized_ex)
         image_data = example.features.feature['image/encoded'].bytes_list.value[0]

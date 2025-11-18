@@ -74,8 +74,8 @@ class HMRTrainer(object):
         # First make sure data_format is right
         if self.data_format == 'NCHW':
             # B x H x W x 3 --> B x 3 x H x W
-            data_loader['image'] = tf.transpose(data_loader['image'],
-                                                [0, 3, 1, 2])
+            data_loader['image'] = tf.transpose(a=data_loader['image'],
+                                                perm=[0, 3, 1, 2])
 
         self.image_loader = data_loader['image']
         self.kp_loader = data_loader['label']
@@ -115,7 +115,7 @@ class HMRTrainer(object):
         self.d_loss_weight = config.d_loss_weight
         self.e_3d_weight = config.e_3d_weight
 
-        self.optimizer = tf.train.AdamOptimizer
+        self.optimizer = tf.compat.v1.train.AdamOptimizer
 
         # Instantiate SMPL
         self.smpl = SMPL(self.smpl_model_path)
@@ -131,30 +131,30 @@ class HMRTrainer(object):
                 resnet_vars = [
                     var for var in self.E_var if 'resnet_v2_50' in var.name
                 ]
-                self.pre_train_saver = tf.train.Saver(resnet_vars)
+                self.pre_train_saver = tf.compat.v1.train.Saver(resnet_vars)
             elif 'pose-tensorflow' in self.pretrained_model_path:
                 resnet_vars = [
                     var for var in self.E_var if 'resnet_v1_101' in var.name
                 ]
-                self.pre_train_saver = tf.train.Saver(resnet_vars)
+                self.pre_train_saver = tf.compat.v1.train.Saver(resnet_vars)
             else:
-                self.pre_train_saver = tf.train.Saver()
+                self.pre_train_saver = tf.compat.v1.train.Saver()
 
             def load_pretrain(sess):
                 self.pre_train_saver.restore(sess, self.pretrained_model_path)
 
             init_fn = load_pretrain
 
-        self.saver = tf.train.Saver(keep_checkpoint_every_n_hours=5)
-        self.summary_writer = tf.summary.FileWriter(self.model_dir)
-        self.sv = tf.train.Supervisor(
+        self.saver = tf.compat.v1.train.Saver(keep_checkpoint_every_n_hours=5)
+        self.summary_writer = tf.compat.v1.summary.FileWriter(self.model_dir)
+        self.sv = tf.compat.v1.train.Supervisor(
             logdir=self.model_dir,
             global_step=self.global_step,
             saver=self.saver,
             summary_writer=self.summary_writer,
             init_fn=init_fn)
-        gpu_options = tf.GPUOptions(allow_growth=True)
-        self.sess_config = tf.ConfigProto(
+        gpu_options = tf.compat.v1.GPUOptions(allow_growth=True)
+        self.sess_config = tf.compat.v1.ConfigProto(
             allow_soft_placement=False,
             log_device_placement=False,
             gpu_options=gpu_options)
@@ -274,7 +274,7 @@ class HMRTrainer(object):
             self.setup_discriminator(fake_rotations, fake_shapes)
 
         # Gather losses.
-        with tf.name_scope("gather_e_loss"):
+        with tf.compat.v1.name_scope("gather_e_loss"):
             # Just the last loss.
             self.e_loss_kp = loss_kps[-1]
 
@@ -290,7 +290,7 @@ class HMRTrainer(object):
                 self.e_loss += (self.e_loss_3d + self.e_loss_3d_joints)
 
         if not self.encoder_only:
-            with tf.name_scope("gather_d_loss"):
+            with tf.compat.v1.name_scope("gather_d_loss"):
                 self.d_loss = self.d_loss_weight * (
                     self.d_loss_real + self.d_loss_fake)
 
@@ -304,7 +304,7 @@ class HMRTrainer(object):
 
         # Don't forget to update batchnorm's moving means.
         print('collecting batch norm moving means!!')
-        bn_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        bn_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
         if bn_ops:
             self.e_loss = control_flow_ops.with_dependencies(
                 [tf.group(*bn_ops)], self.e_loss)
@@ -326,31 +326,31 @@ class HMRTrainer(object):
     def setup_summaries(self, loss_kps):
         # Prepare Summary
         always_report = [
-            tf.summary.scalar("loss/e_loss_kp_noscale",
+            tf.compat.v1.summary.scalar("loss/e_loss_kp_noscale",
                               self.e_loss_kp / self.e_loss_weight),
-            tf.summary.scalar("loss/e_loss", self.e_loss),
+            tf.compat.v1.summary.scalar("loss/e_loss", self.e_loss),
         ]
         if self.encoder_only:
             print('ENCODER ONLY!!!')
         else:
             always_report.extend([
-                tf.summary.scalar("loss/d_loss", self.d_loss),
-                tf.summary.scalar("loss/d_loss_fake", self.d_loss_fake),
-                tf.summary.scalar("loss/d_loss_real", self.d_loss_real),
-                tf.summary.scalar("loss/e_loss_disc",
+                tf.compat.v1.summary.scalar("loss/d_loss", self.d_loss),
+                tf.compat.v1.summary.scalar("loss/d_loss_fake", self.d_loss_fake),
+                tf.compat.v1.summary.scalar("loss/d_loss_real", self.d_loss_real),
+                tf.compat.v1.summary.scalar("loss/e_loss_disc",
                                   self.e_loss_disc / self.d_loss_weight),
             ])
         # loss at each stage.
         for i in np.arange(self.num_stage):
             name_here = "loss/e_losses_noscale/kp_loss_stage%d" % i
             always_report.append(
-                tf.summary.scalar(name_here, loss_kps[i] / self.e_loss_weight))
+                tf.compat.v1.summary.scalar(name_here, loss_kps[i] / self.e_loss_weight))
         if self.use_3d_label:
             always_report.append(
-                tf.summary.scalar("loss/e_loss_3d_params_noscale",
+                tf.compat.v1.summary.scalar("loss/e_loss_3d_params_noscale",
                                   self.e_loss_3d / self.e_3d_weight))
             always_report.append(
-                tf.summary.scalar("loss/e_loss_3d_joints_noscale",
+                tf.compat.v1.summary.scalar("loss/e_loss_3d_joints_noscale",
                                   self.e_loss_3d_joints / self.e_3d_weight))
 
         if not self.encoder_only:
@@ -369,15 +369,15 @@ class HMRTrainer(object):
             d_out_pose = self.d_out[:, :24]
             for i, name in enumerate(smpl_names):
                 summary_occ.append(
-                    tf.summary.histogram("d_out/%s" % name, d_out_pose[i]))
+                    tf.compat.v1.summary.histogram("d_out/%s" % name, d_out_pose[i]))
             summary_occ.append(
-                tf.summary.histogram("d_out/all_joints", d_out_pose[23]))
+                tf.compat.v1.summary.histogram("d_out/all_joints", d_out_pose[23]))
             summary_occ.append(
-                tf.summary.histogram("d_out/beta", self.d_out[:, 24]))
+                tf.compat.v1.summary.histogram("d_out/beta", self.d_out[:, 24]))
 
-            self.summary_op_occ = tf.summary.merge(
+            self.summary_op_occ = tf.compat.v1.summary.merge(
                 summary_occ, collections=['occasional'])
-        self.summary_op_always = tf.summary.merge(always_report)
+        self.summary_op_always = tf.compat.v1.summary.merge(always_report)
 
     def setup_discriminator(self, fake_rotations, fake_shapes):
         # Compute the rotation matrices of "rea" pose.
@@ -409,14 +409,14 @@ class HMRTrainer(object):
 
         self.d_out_real, self.d_out_fake = tf.split(self.d_out, 2)
         # Compute losses:
-        with tf.name_scope("comp_d_loss"):
+        with tf.compat.v1.name_scope("comp_d_loss"):
             self.d_loss_real = tf.reduce_mean(
-                tf.reduce_sum((self.d_out_real - 1)**2, axis=1))
+                input_tensor=tf.reduce_sum(input_tensor=(self.d_out_real - 1)**2, axis=1))
             self.d_loss_fake = tf.reduce_mean(
-                tf.reduce_sum((self.d_out_fake)**2, axis=1))
+                input_tensor=tf.reduce_sum(input_tensor=(self.d_out_fake)**2, axis=1))
             # Encoder loss
             self.e_loss_disc = tf.reduce_mean(
-                tf.reduce_sum((self.d_out_fake - 1)**2, axis=1))
+                input_tensor=tf.reduce_sum(input_tensor=(self.d_out_fake - 1)**2, axis=1))
 
     def get_3d_loss(self, Rs, shape, Js):
         """
@@ -516,14 +516,14 @@ class HMRTrainer(object):
 
             sio = StringIO()
             plt.imsave(sio, combined, format='png')
-            vis_sum = tf.Summary.Image(
+            vis_sum = tf.compat.v1.Summary.Image(
                 encoded_image_string=sio.getvalue(),
                 height=combined.shape[0],
                 width=combined.shape[1])
             img_summaries.append(
-                tf.Summary.Value(tag="vis_images/%d" % img_id, image=vis_sum))
+                tf.compat.v1.Summary.Value(tag="vis_images/%d" % img_id, image=vis_sum))
 
-        img_summary = tf.Summary(value=img_summaries)
+        img_summary = tf.compat.v1.Summary(value=img_summaries)
         self.summary_writer.add_summary(
             img_summary, global_step=result['step'])
 

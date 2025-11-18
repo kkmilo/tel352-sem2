@@ -48,7 +48,7 @@ class RunModel(object):
         #self.smpl_model_path = 'models/neutral_smpl_with_cocoplus_reg.pkl'#config.smpl_model_path
         
         input_size = (self.batch_size, self.img_size, self.img_size, 3)
-        self.images_pl = tf.placeholder(tf.float32, shape=input_size)
+        self.images_pl = tf.compat.v1.placeholder(tf.float32, shape=input_size)
 
         # Model Settings
         self.num_stage = 3#config.num_stage
@@ -73,12 +73,12 @@ class RunModel(object):
         self.build_test_model_ief()
 
         if sess is None:
-            self.sess = tf.Session()
+            self.sess = tf.compat.v1.Session()
         else:
             self.sess = sess
         
         # Load data.
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         self.prepare()        
 
 

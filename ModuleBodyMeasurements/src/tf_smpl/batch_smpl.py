@@ -102,7 +102,7 @@ class SMPL(object):
           - Verts: N x 6980 x 3
         """
 
-        with tf.name_scope(name, "smpl_main", [beta, theta]):
+        with tf.compat.v1.name_scope(name, "smpl_main", [beta, theta]):
             num_batch = beta.shape[0].value
 
             # 1. Add shape blend shapes
@@ -121,7 +121,7 @@ class SMPL(object):
             # N x 24 x 3 x 3
             Rs = tf.reshape(
                 batch_rodrigues(tf.reshape(theta, [-1, 3])), [-1, 24, 3, 3])
-            with tf.name_scope("lrotmin"):
+            with tf.compat.v1.name_scope("lrotmin"):
                 # Ignore global rotation.
                 pose_feature = tf.reshape(Rs[:, 1:, :, :] - tf.eye(3),
                                           [-1, 207])

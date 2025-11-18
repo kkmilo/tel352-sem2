@@ -13,17 +13,17 @@ import tensorflow as tf
 from .common import convert_to_example_wmosh, ImageCoder, resize_img
 from .mpi_inf_3dhp.read_mpi_inf_3dhp import get_paths, read_mat, mpi_inf_3dhp_to_lsp_idx, read_camera
 
-tf.app.flags.DEFINE_string('data_directory', '/scratch1/storage/mpi_inf_3dhp/',
+tf.compat.v1.app.flags.DEFINE_string('data_directory', '/scratch1/storage/mpi_inf_3dhp/',
                            'data directory: top of mpi-inf-3dhp')
-tf.app.flags.DEFINE_string('output_directory',
+tf.compat.v1.app.flags.DEFINE_string('output_directory',
                            '/scratch1/projects/tf_datasets/mpi_inf_3dhp/',
                            'Output data directory')
 
-tf.app.flags.DEFINE_string('split', 'train', 'train or trainval')
-tf.app.flags.DEFINE_integer('train_shards', 500,
+tf.compat.v1.app.flags.DEFINE_string('split', 'train', 'train or trainval')
+tf.compat.v1.app.flags.DEFINE_integer('train_shards', 500,
                             'Number of shards in training TFRecord files.')
 
-FLAGS = tf.app.flags.FLAGS
+FLAGS = tf.compat.v1.app.flags.FLAGS
 MIN_VIS_PTS = 8  # This many points must be within the image.
 
 # To go to h36m joints:
@@ -118,7 +118,7 @@ def add_to_tfrecord(im_path,
     if not exists(im_path):
         # print('!!--%s doesnt exist! Skipping..--!!' % im_path)
         return False
-    with tf.gfile.FastGFile(im_path, 'rb') as f:
+    with tf.compat.v1.gfile.FastGFile(im_path, 'rb') as f:
         image_data = f.read()
     image = coder.decode_jpeg(coder.png_to_jpeg(image_data))
     assert image.shape[2] == 3
@@ -193,7 +193,7 @@ def save_to_tfrecord(out_name, im_paths, gt2ds, gt3ds, cams, num_shards):
     while i < len(im_paths):
         tf_filename = out_name % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             j = 0
             while i < len(im_paths) and j < num_shards:
                 if i % 100 == 0:
@@ -282,4 +282,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()

@@ -17,23 +17,23 @@ import tensorflow as tf
 
 from .common import convert_to_example, ImageCoder
 
-tf.app.flags.DEFINE_string('img_directory',
+tf.compat.v1.app.flags.DEFINE_string('img_directory',
                            '/scratch1/storage/human_datasets/lsp_dataset',
                            'image data directory')
-tf.app.flags.DEFINE_string(
+tf.compat.v1.app.flags.DEFINE_string(
     'output_directory', '/Users/kanazawa/projects/datasets/tf_datasets/lsp/',
     'Output data directory')
 
-tf.app.flags.DEFINE_integer('train_shards', 500,
+tf.compat.v1.app.flags.DEFINE_integer('train_shards', 500,
                             'Number of shards in training TFRecord files.')
-tf.app.flags.DEFINE_integer('validation_shards', 500,
+tf.compat.v1.app.flags.DEFINE_integer('validation_shards', 500,
                             'Number of shards in validation TFRecord files.')
 
-FLAGS = tf.app.flags.FLAGS
+FLAGS = tf.compat.v1.app.flags.FLAGS
 
 
 def _add_to_tfrecord(image_path, label, coder, writer, is_lsp_ext=False):
-    with tf.gfile.FastGFile(image_path, 'rb') as f:
+    with tf.compat.v1.gfile.FastGFile(image_path, 'rb') as f:
         image_data = f.read()
 
     image = coder.decode_jpeg(image_data)
@@ -85,7 +85,7 @@ def package(img_paths, labels, out_path, num_shards):
         # Open new TFRecord file.
         tf_filename = out_path % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             j = 0
             while i < len(img_paths) and j < num_shards:
                 if i % 100 == 0:
@@ -149,4 +149,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()

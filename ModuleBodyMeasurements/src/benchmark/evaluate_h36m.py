@@ -125,7 +125,7 @@ def get_data(seq_name, config):
     """
     global sess
     if sess is None:
-        sess = tf.Session()
+        sess = tf.compat.v1.Session()
 
     tf_path = join(
         expanduser(config.tfh36m_dir), 'test', seq_name + '.tfrecord')

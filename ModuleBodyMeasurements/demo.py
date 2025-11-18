@@ -122,7 +122,7 @@ def preprocess_image(img_path, json_path=None):
 
 def main(img_path, height, json_path=None):
 #    renderer = vis_util.SMPLRenderer(face_path='src/tf_smpl/smpl_faces.npy')
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
     model = RunModel(sess=sess)
 #    cv2.imshow('input image for measurement extraction',img_path)
 #    cv2.waitKey(0)

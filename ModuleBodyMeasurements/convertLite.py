@@ -35,7 +35,6 @@ converter.quantized_input_stats = {"ImageTensor": (127.5, 127.5)}
 #converter.target_spec.supported_types = [tf.float16]
 
 converter._experimental_lower_int64 = True
-
 tflite_model = converter.convert()
 
 # Save TFLite model

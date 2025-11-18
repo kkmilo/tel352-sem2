@@ -15,20 +15,20 @@ import tensorflow as tf
 
 from .common import float_feature
 
-tf.app.flags.DEFINE_string(
+tf.compat.v1.app.flags.DEFINE_string(
     'dataset_name', 'neutrSMPL_CMU',
     'neutrSMPL_CMU, neutrSMPL_H3.6, or neutrSMPL_jointLim')
-tf.app.flags.DEFINE_string('data_directory',
+tf.compat.v1.app.flags.DEFINE_string('data_directory',
                            '/scratch1/storage/human_datasets/neutrMosh/',
                            'data directory where SMPL npz/pkl lies')
-tf.app.flags.DEFINE_string('output_directory',
+tf.compat.v1.app.flags.DEFINE_string('output_directory',
                            '/scratch1/projects/tf_datasets/mocap_neutrMosh/',
                            'Output data directory')
 
-tf.app.flags.DEFINE_integer('num_shards', 10000,
+tf.compat.v1.app.flags.DEFINE_integer('num_shards', 10000,
                             'Number of shards in TFRecord files.')
 
-FLAGS = tf.app.flags.FLAGS
+FLAGS = tf.compat.v1.app.flags.FLAGS
 
 
 def convert_to_example(pose, shape=None):
@@ -86,7 +86,7 @@ def process_smpl_mocap(all_pkls, out_dir, num_shards, dataset_name):
         # Open new TFRecord file.
         tf_filename = out_path % fidx
         print('Starting tfrecord file %s' % tf_filename)
-        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+        with tf.io.TFRecordWriter(tf_filename) as writer:
             j = 0
             while i < num_mocap and j < num_shards:
                 if i % 10000 == 0:
@@ -120,4 +120,4 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-    tf.app.run()
+    tf.compat.v1.app.run()
