@@ -2,7 +2,9 @@ import os
 import numpy as np
 import cv2
 from PIL import Image
-import tflite_runtime.interpreter as tflite
+# import tflite_runtime.interpreter as tflite #Pi version
+from tensorflow.lite.python.interpreter import Interpreter # PC version
+
 from ModuleBodyMeasurements.demo import main  # your measurement logic
 
 # --------------------
@@ -14,21 +16,28 @@ INTERPRETER_INSTANCE = None
 # 🔹 TFLite Model Class
 # --------------------
 class DeepLabTFLiteModel:
-    INPUT_SIZE = 513  # MobileNetV2 DeepLab default input
+    # Outdated    INPUT_SIZE = 513  # MobileNetV2 DeepLab default input
+
 
     def __init__(self, model_path: str):
-        self.interpreter = tflite.Interpreter(model_path=model_path)
+        #self.interpreter = tflite.Interpreter(model_path=model_path) #Pi Version
+        self.interpreter = Interpreter(model_path=model_path)  # PC Version
         self.interpreter.allocate_tensors()
 
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
+
+        self.input_height = self.input_details[0]['shape'][1]
+        self.input_width  = self.input_details[0]['shape'][2]   
 
         print("✅ TFLite model loaded successfully!")
 
     def run(self, image: Image.Image):
         """Run segmentation on input image and return resized image + mask."""
 
-        resized_image = image.convert("RGB").resize((self.INPUT_SIZE, self.INPUT_SIZE), Image.ANTIALIAS)
+        #resized_image = image.convert("RGB").resize((self.INPUT_SIZE, self.INPUT_SIZE), Image.ANTIALIAS)
+        resized_image = image.convert("RGB").resize((self.input_width, self.input_height), Image.ANTIALIAS)
+        
         # Prepare input data depending on model type
         input_details = self.input_details[0]
         input_shape = input_details['shape']
@@ -51,7 +60,12 @@ class DeepLabTFLiteModel:
         self.interpreter.invoke()
 
         seg_map = self.interpreter.get_tensor(self.output_details[0]['index'])[0]
+        
+        # Convert from [H, W, 21] → [H, W]
+        seg_map = np.argmax(seg_map, axis=-1).astype(np.uint8)
+        
         return resized_image, seg_map
+
 
 
 # --------------------
@@ -78,13 +92,19 @@ def run_inference(image_path: str, height: int):
     resized_image, seg = INTERPRETER_INSTANCE.run(image)
 
     # Resize segmentation mask to original image size
-    seg = cv2.resize(seg.astype(np.uint8), image.size)
+    #seg = cv2.resize(seg.astype(np.uint8), image.size)
+    seg = cv2.resize(seg.astype(np.uint8), image.size, interpolation=cv2.INTER_NEAREST)
     mask_sel = (seg == 15).astype(np.float32)  # Pascal VOC 'person' class
-    mask = 255 * mask_sel.astype(np.uint8)
+    #mask = 255 * mask_sel.astype(np.uint8)
+    mask = (seg == 15).astype(np.uint8) * 255
+
 
     # Apply mask to image
     img = np.array(image)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    print("DEBUG img:", img.shape, img.dtype)
+    print("DEBUG mask:", mask.shape, mask.dtype)
+
     res = cv2.bitwise_and(img, img, mask=mask)
     bg_removed = res + (255 - cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR))
 

@@ -22,8 +22,8 @@ traduccion_medidas = {
 }
 
 # === Import your body measurement model ===
-from ModuleBodyMeasurements.inference_function import run_inference #PC
-# from ModuleBodyMeasurements.inference_function_tflite import run_inference #Raspi
+#from ModuleBodyMeasurements.inference_function import run_inference #PC
+from ModuleBodyMeasurements.inference_function_tflite import run_inference #Raspi
 
 # === Fonts ===
 title_font = ("Times New Roman", 100, "bold")
