@@ -1,27 +1,24 @@
 # Sistema de Captura y Predicción de Estatura
 
-## 🚀 Inicio Rápido
+Sistema de visión por computadora para medir la estatura de personas usando una cámara web.
 
-### Instalación Automática (Recomendado)
+## 🚀 Instalación Rápida (3 pasos)
 
+### 1. Crear entorno virtual
 ```bash
-cd sistema_altura
-./scripts/inicio_rapido.sh
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-### Instalación Manual
-
+### 2. Instalar dependencias
 ```bash
-cd sistema_altura
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+```
 
-# 1. Crear entorno virtual
-./scripts/setup_entorno.sh
-
-# 2. Instalar dependencias
-./scripts/instalar_dependencias.sh
-
-# 3. Ejecutar sistema
-./scripts/ejecutar_sistema.sh
+### 3. Ejecutar el sistema
+```bash
+python app/captura_y_prediccion.py
 ```
 
 ## 📁 Estructura del Proyecto
