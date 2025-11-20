@@ -134,16 +134,19 @@ def analizar_imagen():
         result_text.config(text=full_text)
 
 
-    except ValueError as e:
-        analisis.place_forget()
-        result_text.place(x=10, y=400)
-        result_text.config(text="Por favor ingrese una altura válida (número).")
-        print(f"[ERROR] {e}")
+    #except ValueError as e:
+    #    analisis.place_forget()
+    #    result_text.place(x=10, y=400)
+    #    result_text.config(text="Por favor ingrese una altura válida (número).")
+    #    print(f"[ERROR] {e}")
+#
+    #except Exception as e:
+    #    analisis.place_forget()
+    #    result_text.place(x=10, y=400)
+    #    result_text.config(text=f"Error al analizar la imagen:\n{e}")
+    #    print(f"[ERROR] {e}")
 
-    except Exception as e:
-        analisis.place_forget()
-        result_text.place(x=10, y=400)
-        result_text.config(text=f"Error al analizar la imagen:\n{e}")
+    except OverflowError as e:
         print(f"[ERROR] {e}")
 
     button3.place(x=250, y=750)

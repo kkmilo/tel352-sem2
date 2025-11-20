@@ -37,7 +37,13 @@ class SMPL(object):
             dtype=dtype,
             trainable=False)
         # Size of mesh [Number of vertices, 3]
-        self.size = [self.v_template.shape[0].value, 3]
+        # Works for TF1 (TensorShape) and TF2 (int)
+        dim0 = self.v_template.shape[0]
+        if hasattr(dim0, "value"):
+            dim0 = dim0.value
+        
+        self.size = [dim0, 3]
+
         self.num_betas = dd['shapedirs'].shape[-1]
         # Shape blend shape basis: 6980 x 3 x 10
         # reshaped to 6980*30 x 10, transposed to 10x6980*3
@@ -103,7 +109,9 @@ class SMPL(object):
         """
 
         with tf.compat.v1.name_scope(name, "smpl_main", [beta, theta]):
-            num_batch = beta.shape[0].value
+            num_batch = beta.shape[0]
+            if hasattr(num_batch, "value"):
+                num_batch = num_batch.value
 
             # 1. Add shape blend shapes
             # (N x 10) x (10 x 6890*3) = N x 6890 x 3
@@ -142,8 +150,13 @@ class SMPL(object):
             T = tf.reshape(
                 tf.matmul(W, tf.reshape(A, [num_batch, 24, 16])),
                 [num_batch, -1, 4, 4])
+            dim1 = v_posed.shape[1]
+            if hasattr(dim1, "value"):
+                dim1 = dim1.value
+            
             v_posed_homo = tf.concat(
-                [v_posed, tf.ones([num_batch, v_posed.shape[1], 1])], 2)
+                    [v_posed, tf.ones([num_batch, dim1, 1])], 2)
+
             v_homo = tf.matmul(T, tf.expand_dims(v_posed_homo, -1))
 
             verts = v_homo[:, :, :3, 0]

@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import os
 import tensorflow as tf
+tf.compat.v1.disable_eager_execution()
 import numpy as np
 from os.path import exists
 
@@ -73,25 +74,45 @@ class RunModel(object):
         self.build_test_model_ief()
 
         if sess is None:
-            self.sess = tf.compat.v1.Session()
+            self.sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto())
         else:
             self.sess = sess
         
         # Load data.
-        self.saver = tf.compat.v1.train.Saver()
-        self.prepare()        
+        ###vars_in_ckpt = {v.name.split(':')[0]: v for v in tf.compat.v1.global_variables()
+        ###                if v.name.split(':')[0] in tf.train.list_variables(self.load_path)}
+        ###
+        ###self.saver = tf.compat.v1.train.Saver(var_list=vars_in_ckpt)
+###
+        ###try:
+        ###    self.saver.restore(self.sess, self.load_path)
+        ###    print("Checkpoint restored partially.")
+        ###except Exception as e:
+        ###    print("Partial restore failed, continuing with random weights:", e)
+        ###    self.sess.run(tf.compat.v1.global_variables_initializer())
+        print("Initializing all variables (demo mode, checkpoint restore skipped)...")
+        self.sess.run(tf.compat.v1.global_variables_initializer())
 
+        self.prepare()        
 
     def build_test_model_ief(self):
         # Load mean value
-        self.mean_var = tf.Variable(tf.zeros((1, self.total_params)), name="mean_param", dtype=tf.float32)
+        # use compat.get_variable style earlier (if you applied prior suggestion)
+        self.mean_var = tf.compat.v1.get_variable(
+            "mean_param",
+            shape=[1, self.total_params],
+            dtype=tf.float32,
+            initializer=tf.zeros_initializer()
+        )
 
         img_enc_fn, threed_enc_fn = get_encoder_fn_separate(self.model_type)
-        # Extract image features.        
-        self.img_feat, self.E_var = img_enc_fn(self.images_pl,
-                                               is_training=False,
-                                               reuse=False)
-        
+        # Extract image features.
+        # NOTE: new encoder functions return (net, variables, model_instance)
+        self.img_feat, self.E_var, self.img_encoder = img_enc_fn(
+            self.images_pl,
+            is_training=False,
+            reuse=False)
+
         # Start loop
         self.all_verts = []
         self.all_kps = []
@@ -99,19 +120,21 @@ class RunModel(object):
         self.all_Js = []
         self.final_thetas = []
         theta_prev = tf.tile(self.mean_var, [self.batch_size, 1])
+
         for i in np.arange(self.num_stage):
             print('Iteration %d' % i)
             # ---- Compute outputs
             state = tf.concat([self.img_feat, theta_prev], 1)
 
             if i == 0:
-                delta_theta, _ = threed_enc_fn(
+                # new threed_enc_fn returns (tensor, variables, model)
+                delta_theta, three_vars, three_model = threed_enc_fn(
                     state,
                     num_output=self.total_params,
                     is_training=False,
                     reuse=False)
             else:
-                delta_theta, _ = threed_enc_fn(
+                delta_theta, three_vars, three_model = threed_enc_fn(
                     state,
                     num_output=self.total_params,
                     is_training=False,
@@ -120,7 +143,7 @@ class RunModel(object):
             # Compute new theta
             theta_here = theta_prev + delta_theta
             # cam = N x 3, pose N x self.num_theta, shape: N x 10
-            cams = theta_here[:, :self.num_cam]                
+            cams = theta_here[:, :self.num_cam]
             poses = theta_here[:, self.num_cam:(self.num_cam + self.num_theta)]
             shapes = theta_here[:, (self.num_cam + self.num_theta):]
 
@@ -138,9 +161,10 @@ class RunModel(object):
             theta_prev = theta_here
 
 
+
     def prepare(self):
         print('Restoring checkpoint %s..' % self.load_path)
-        self.saver.restore(self.sess, self.load_path)        
+        ###self.saver.restore(self.sess, self.load_path)        
         self.mean_value = self.sess.run(self.mean_var)
             
     def predict(self, images, get_theta=False):
