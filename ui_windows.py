@@ -4,6 +4,25 @@ import math
 from PIL import Image, ImageTk
 import sys
 from catalogo_prendas import catalogo_prendas
+import requests
+import io
+
+
+def get_height_from_api(image_path):
+    url = "http://127.0.0.1:8000/predict/height"     # your FastAPI URL
+
+    with open(image_path, "rb") as f:
+        files = {"image": ("photo.jpg", f, "image/jpeg")}
+        response = requests.post(url, files=files)
+
+    if response.status_code != 200:
+        raise ValueError(f"API error: {response.text}")
+
+    # Extract the predicted height from custom headers
+    predicted_height = float(response.headers.get("X-Height-Predicted"))
+
+    return predicted_height
+
 
 
 # Translation dictionary for measurements
@@ -104,11 +123,13 @@ def analizar_imagen():
         app.update_idletasks()  # show "Analizando imagen..." before processing
 
         # Get height value
-        height_cm = int(height_var.get())
+        # height_cm = int(height_var.get()) # Lectura a traves del label de la UI
+        # First get height from your FastAPI service
+        height_cm = get_height_from_api("camilo1.jpg")
 
         # Run the body measurement inference model
         # result = run_inference("captured_image.jpg", height_cm)
-        result = run_inference("felipe1.jpg", height_cm)
+        result = run_inference("camilo1.jpg", height_cm)
 
         #traducir medidas
         result = {traduccion_medidas[k]: v for k, v in result.items() if k in traduccion_medidas}  

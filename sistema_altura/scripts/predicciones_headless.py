@@ -294,7 +294,7 @@ def main():
         altura_cal = altura_raw
 
         if cfg['calibracion']:
-            altura_cal += float(cfg['calibracion'].get('offset_aditivo', 0.0))
+            altura_cal -= float(52.0)
 
         conf = calcular_confianza(feats, visibility)
 

@@ -7,8 +7,8 @@ pillow>=10.0.0
 # TensorFlow Lite/TensorFlow (según versión de Python)
 # - Para Python < 3.12: usar tflite-runtime (ligero, recomendado)
 # - Para Python >= 3.12: usar TensorFlow completo (no hay wheel oficial de tflite-runtime para 3.12)
-tflite-runtime>=2.14.0; python_version < "3.12"
-tensorflow>=2.19.0,<2.20.0; python_version >= "3.12"
+#tflite-runtime>=2.14.0; python_version < "3.12"
+tensorflow>=2.19.0,<2.20.0; python_version < "3.12"
 protobuf>=4.25.3,<5; python_version >= "3.12"
 
 # Para entrenamiento/conversión (opcional)
