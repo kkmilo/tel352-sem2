@@ -1,85 +1,102 @@
+# ============================================
 # ColorInsight TFLite - Requirements
-# Python 3.11.14
-# Proyecto completo con API, UI y módulos de análisis
+# ============================================
+# Análisis profundo realizado el 21/11/2025
+# Compatible con Python 3.8 - 3.11
+# ============================================
 
-# ==========================================
-# CORE DEPENDENCIES - REQUERIDAS
-# ==========================================
+# === CORE: TensorFlow Lite (Principal) ===
+# Opción 1: TensorFlow completo (RECOMENDADO - soporta Flex Ops y delegados)
+tensorflow>=2.13.0,<2.17.0
 
-# Procesamiento de imágenes
-opencv-python==4.12.0.88
-numpy==1.26.4
-Pillow==12.0.0
+# Opción 2: TFLite Runtime solo (más ligero, pero sin Flex Ops)
+# Si quieres usar solo tflite-runtime, comenta tensorflow arriba y descomenta:
+# tflite-runtime>=2.13.0
 
-# TensorFlow y TFLite (para modelos de inferencia)
-tensorflow==2.20.0
+# === Computer Vision & Image Processing ===
+opencv-python>=4.8.0,<4.11.0
+# opencv-python 4.8+ tiene mejor compatibilidad con NumPy 1.24+
+# Evitar 4.10.0.84 que tiene bug con mediapipe en algunas plataformas
 
-# MediaPipe (análisis facial y pose)
-# Requerido para métodos 'mediapipe' y 'facer_tflite'
-# También usado en api_wrapper.py para detección de pose
-mediapipe==0.10.9
+# Pillow para procesamiento de imágenes
+Pillow>=10.0.0,<11.0.0
+# Pillow 10.x tiene mejor seguridad y rendimiento
 
-# ==========================================
-# API REST - FastAPI
-# ==========================================
+# === Numerical Computing ===
+numpy>=1.24.0,<2.0.0
+# NumPy 1.24+ compatible con TensorFlow 2.13+
+# Evitar 2.0 por incompatibilidades con TFLite y OpenCV
 
-# Framework web y servidor
-fastapi==0.121.3
-uvicorn==0.38.0
+# === MediaPipe (Opcional pero recomendado) ===
+# Usado para detección facial, segmentación de pelo, y face mesh
+mediapipe>=0.10.0,<0.11.0
+# MediaPipe 0.10.x compatible con protobuf 3.20+ y TensorFlow 2.13+
+# Requerido para methods: 'mediapipe' y 'facer_tflite'
 
-# Dependencias HTTP
-requests==2.32.5
-python-multipart==0.0.20
+# === API Web (FastAPI) ===
+# Para el servidor API REST
+fastapi>=0.104.0,<0.115.0
+# FastAPI 0.104+ tiene mejor soporte para async y tipos
 
-# ==========================================
-# GUI - Tkinter (UI Windows/Desktop)
-# ==========================================
+uvicorn>=0.24.0,<0.31.0
+# Servidor ASGI para FastAPI
+# Con soporte para [standard] incluye websockets y watchfiles
 
-# Nota: tkinter viene incluido con Python en la mayoría de instalaciones
-# Si no está disponible: sudo apt-get install python3-tk (Linux)
-# En Windows/Mac generalmente ya está instalado
+python-multipart>=0.0.6,<0.1.0
+# Requerido para subir archivos (UploadFile) en FastAPI
 
-# ==========================================
-# MACHINE LEARNING ADICIONAL
-# ==========================================
+# === HTTP Requests ===
+requests>=2.31.0,<3.0.0
+# Para descargar modelos y comunicación entre servicios
 
-# Para normalización de datos (usado por api_wrapper)
-scikit-learn==1.7.2
+# === Progress Bars (Opcional) ===
+tqdm>=4.66.0,<5.0.0
+# Para barras de progreso en procesamiento batch
 
-# ==========================================
-# UTILIDADES
-# ==========================================
+# === UI Desktop (Opcional - solo para ui_windows.py) ===
+# Tkinter viene con Python, pero necesitamos:
+# - En Linux: sudo apt-get install python3-tk
+# - En macOS: viene incluido
+# - En Windows: viene incluido
 
-# Barra de progreso
-tqdm==4.67.1
-
-# Manejo de rutas
-# pathlib - incluido en Python estándar
-
-# ==========================================
-# DEPENDENCIAS OPCIONALES
-# ==========================================
-
-# TFLite Runtime (alternativa ligera a TensorFlow completo)
-# Descomentar si quieres usar solo tflite-runtime en lugar de tensorflow:
-# tflite-runtime==2.14.0
-
-# ==========================================
-# NOTAS
-# ==========================================
-
-# Dependencias automáticas (instaladas por las anteriores):
-# - urllib3 (manejo de URLs)
-# - certifi (certificados SSL)
-# - charset-normalizer (detección de encoding)
-# - idna (dominios internacionalizados)
-# - absl-py (MediaPipe/TensorFlow)
-# - protobuf (TensorFlow/MediaPipe)
-# - h5py (modelos Keras/TensorFlow)
-# - flatbuffers (TFLite)
-# - werkzeug (FastAPI)
-# - starlette (FastAPI)
-# - pydantic (FastAPI)
-# - joblib (scikit-learn)
-# - scipy (scikit-learn)
-# - threadpoolctl (scikit-learn)
+# ============================================
+# NOTAS DE COMPATIBILIDAD:
+# ============================================
+# 1. TensorFlow 2.13-2.16: Rango óptimo para TFLite con Flex Ops
+#    - 2.13: Python 3.8-3.11
+#    - 2.14-2.15: Python 3.9-3.11
+#    - 2.16: Python 3.9-3.12
+#
+# 2. MediaPipe 0.10.x requiere:
+#    - protobuf>=3.20.0,<4.0.0 (se instala automáticamente)
+#    - opencv-python>=4.6.0
+#    - numpy>=1.21.0,<2.0.0
+#
+# 3. OpenCV 4.8-4.10:
+#    - Mejor compatibilidad con NumPy moderno
+#    - Evitar 4.10.0.84 (bug conocido con mediapipe)
+#
+# 4. Para Raspberry Pi:
+#    - Usar tflite-runtime en lugar de tensorflow (más ligero)
+#    - pip install tflite-runtime
+#    - MediaPipe 0.10.x funciona bien en RPi 4/5
+#
+# 5. Conflictos conocidos:
+#    - NumPy 2.0+ NO compatible con TFLite actual
+#    - protobuf 4.x+ puede causar problemas con MediaPipe
+#    - opencv-python-headless: usar si no necesitas GUI
+#
+# ============================================
+# INSTALACIÓN RECOMENDADA:
+# ============================================
+# pip install --upgrade pip
+# pip install -r requirements.txt
+#
+# Para Raspberry Pi (más ligero):
+# pip install --upgrade pip
+# pip install tflite-runtime>=2.13.0
+# pip install opencv-python>=4.8.0 mediapipe>=0.10.0
+# pip install Pillow>=10.0.0 numpy>=1.24.0,<2.0.0
+# pip install fastapi>=0.104.0 uvicorn>=0.24.0
+# pip install python-multipart requests tqdm
+# ============================================
