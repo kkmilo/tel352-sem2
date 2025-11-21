@@ -1,0 +1,85 @@
+# ColorInsight TFLite - Requirements
+# Python 3.11.14
+# Proyecto completo con API, UI y módulos de análisis
+
+# ==========================================
+# CORE DEPENDENCIES - REQUERIDAS
+# ==========================================
+
+# Procesamiento de imágenes
+opencv-python==4.12.0.88
+numpy==1.26.4
+Pillow==12.0.0
+
+# TensorFlow y TFLite (para modelos de inferencia)
+tensorflow==2.20.0
+
+# MediaPipe (análisis facial y pose)
+# Requerido para métodos 'mediapipe' y 'facer_tflite'
+# También usado en api_wrapper.py para detección de pose
+mediapipe==0.10.9
+
+# ==========================================
+# API REST - FastAPI
+# ==========================================
+
+# Framework web y servidor
+fastapi==0.121.3
+uvicorn==0.38.0
+
+# Dependencias HTTP
+requests==2.32.5
+python-multipart==0.0.20
+
+# ==========================================
+# GUI - Tkinter (UI Windows/Desktop)
+# ==========================================
+
+# Nota: tkinter viene incluido con Python en la mayoría de instalaciones
+# Si no está disponible: sudo apt-get install python3-tk (Linux)
+# En Windows/Mac generalmente ya está instalado
+
+# ==========================================
+# MACHINE LEARNING ADICIONAL
+# ==========================================
+
+# Para normalización de datos (usado por api_wrapper)
+scikit-learn==1.7.2
+
+# ==========================================
+# UTILIDADES
+# ==========================================
+
+# Barra de progreso
+tqdm==4.67.1
+
+# Manejo de rutas
+# pathlib - incluido en Python estándar
+
+# ==========================================
+# DEPENDENCIAS OPCIONALES
+# ==========================================
+
+# TFLite Runtime (alternativa ligera a TensorFlow completo)
+# Descomentar si quieres usar solo tflite-runtime en lugar de tensorflow:
+# tflite-runtime==2.14.0
+
+# ==========================================
+# NOTAS
+# ==========================================
+
+# Dependencias automáticas (instaladas por las anteriores):
+# - urllib3 (manejo de URLs)
+# - certifi (certificados SSL)
+# - charset-normalizer (detección de encoding)
+# - idna (dominios internacionalizados)
+# - absl-py (MediaPipe/TensorFlow)
+# - protobuf (TensorFlow/MediaPipe)
+# - h5py (modelos Keras/TensorFlow)
+# - flatbuffers (TFLite)
+# - werkzeug (FastAPI)
+# - starlette (FastAPI)
+# - pydantic (FastAPI)
+# - joblib (scikit-learn)
+# - scipy (scikit-learn)
+# - threadpoolctl (scikit-learn)
